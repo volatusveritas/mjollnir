@@ -53,12 +53,6 @@ require("volt.session").setup()
 -- Setup custom folds
 require("volt.fold").setup()
 
--- Load refactoring utilities
-require("volt.refactor").setup()
-
--- Setup the substitute feature
-require("volt.substitute").setup()
-
 -- Setup the description table
 -- TODO: this module is WIP.
 --require("volt.desctable").setup()
@@ -171,6 +165,14 @@ keymap.set("n", {
                 map = "0",
                 desc = "Go to start of line."
             },
+            o = {
+                desc = "Go to a file using the :find command",
+                map = ":find "
+            },
+            s = {
+                desc = "Go to the first character in the line.",
+                map = "^",
+            },
         },
     },
     ["<Leader>p"] = {
@@ -184,10 +186,6 @@ keymap.set("n", {
     ["<Leader>y"] = {
         desc = "Copy to clipboard",
         map = "\"+y"
-    },
-    go = {
-        desc = "Go to a file using the :find command",
-        map = ":find "
     },
     ["[b"] = {
         desc = "Go to previous buffer",

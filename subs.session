@@ -14,8 +14,8 @@ else
   set shortmess=aoO
 endif
 badd +1 pack/volt/opt/plugins/colors/voltred.lua
-badd +199 pack/volt/start/plugins/lua/volt/substitute.lua
-badd +5 test_substitute.lua
+badd +310 pack/volt/start/plugins/lua/volt/substitute.lua
+badd +4 test_substitute.lua
 badd +1 highlight.ran
 badd +1 pack/volt/start/plugins/lua/volt/fold.lua
 badd +200 ./init.lua
@@ -50,12 +50,38 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 195 - ((117 * winheight(0) + 22) / 45)
+247
+normal! zo
+250
+normal! zo
+254
+normal! zo
+254
+normal! zo
+264
+normal! zo
+292
+normal! zo
+293
+normal! zo
+296
+normal! zo
+297
+normal! zo
+308
+normal! zo
+311
+normal! zo
+313
+normal! zo
+319
+normal! zo
+let s:l = 297 - ((34 * winheight(0) + 22) / 45)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 195
-normal! 01|
+keepjumps 297
+normal! 053|
 wincmd w
 argglobal
 if bufexists(fnamemodify("test_substitute.lua", ":p")) | buffer test_substitute.lua | else | edit test_substitute.lua | endif
@@ -71,12 +97,12 @@ setlocal fdl=1
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 2 - ((1 * winheight(0) + 22) / 45)
+let s:l = 4 - ((3 * winheight(0) + 22) / 45)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 2
-normal! 031|
+keepjumps 4
+normal! 017|
 wincmd w
 exe 'vert 1resize ' . ((&columns * 96 + 96) / 193)
 exe 'vert 2resize ' . ((&columns * 96 + 96) / 193)
@@ -94,7 +120,6 @@ if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
 endif
 let &g:so = s:so_save | let &g:siso = s:siso_save
-nohlsearch
 doautoall SessionLoadPost
 unlet SessionLoad
 " vim: set ft=vim :

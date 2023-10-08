@@ -44,7 +44,7 @@ function volt_fold_text()
 
     local fstart = vim.fn.getline(vim.v.foldstart)
     local fend = vim.fn.getline(vim.v.foldend)
-    local lcount = string.format("(%d) ", lines)
+    local lcount = string.format("(%d) ", lines - 2)
 
     local content = fstart
 
