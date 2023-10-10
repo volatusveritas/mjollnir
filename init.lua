@@ -6,7 +6,6 @@ vim.o.number = true
 vim.o.relativenumber = true
 vim.o.expandtab = true
 vim.o.ignorecase = true
-vim.o.hlsearch = false
 vim.o.smartcase = true
 vim.o.splitright = true
 vim.o.splitbelow = true
@@ -52,6 +51,9 @@ require("volt.session").setup()
 
 -- Setup custom folds
 require("volt.fold").setup()
+
+-- Setup jump-to-line
+require("volt.jumptoline").setup()
 
 -- Setup the description table
 -- TODO: this module is WIP.
@@ -194,6 +196,12 @@ keymap.set("n", {
     ["]b"] = {
         desc = "Go to next buffer",
         map = "<Cmd>bnext<CR>",
+    },
+    ["<Leader>h"] = {
+        desc = "Stop the search highlighting",
+        map = function()
+            vim.cmd("nohlsearch")
+        end,
     },
 })
 
