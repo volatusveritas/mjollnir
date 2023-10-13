@@ -203,6 +203,14 @@ keymap.set("n", {
             vim.cmd("nohlsearch")
         end,
     },
+    dl = {
+        desc = "Delete line",
+        map = "dd",
+    },
+    s = {
+        desc = "Start a search",
+        map = "/",
+    },
 })
 
 keymap.set("v", {
