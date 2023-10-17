@@ -52,15 +52,14 @@ require("volt.session").setup()
 -- Setup custom folds
 require("volt.fold").setup()
 
--- Setup jump-to-line
-require("volt.jumptoline").setup()
-
 -- Setup the description table
 -- TODO: this module is WIP.
 --require("volt.desctable").setup()
 
 -- Imports
 local keymap = require("volt.keymap")
+
+local surround = require("volt.surround")
 
 -- Keymaps
 keymap.set("n", {
@@ -214,6 +213,98 @@ keymap.set("n", {
     S = {
         desc = "Start a search backwards",
         map = "?",
+    },
+    ["<Leader>s"] = {
+        desc = "Surround",
+        map = {
+            a = {
+                desc = "Add",
+                map = {
+                    iw = {
+                        desc = "Inner word",
+                        map = {
+                            ["("] = {
+                                desc = "Parentheses",
+                                map = function()
+                                    surround.surround_region(
+                                        surround.patterns.word,
+                                        surround.charpairs.parentheses
+                                    )
+                                end,
+                            },
+                            ["["] = {
+                                desc = "Square brackets",
+                                map = function()
+                                    surround.surround_region(
+                                        surround.patterns.word,
+                                        surround.charpairs.square_brackets
+                                    )
+                                end,
+                            },
+                            ["{"] = {
+                                desc = "Curly braces",
+                                map = function()
+                                    surround.surround_region(
+                                        surround.patterns.word,
+                                        surround.charpairs.curly_braces
+                                    )
+                                end,
+                            },
+                            ["<"] = {
+                                desc = "Angle brackets",
+                                map = function()
+                                    surround.surround_region(
+                                        surround.patterns.word,
+                                        surround.charpairs.angle_brackets
+                                    )
+                                end,
+                            }
+                        },
+                    },
+                    iW = {
+                        desc = "Inner WORD",
+                        map = {
+                            ["("] = {
+                                desc = "Parentheses",
+                                map = function()
+                                    surround.surround_region(
+                                        surround.patterns.WORD,
+                                        surround.charpairs.parentheses
+                                    )
+                                end,
+                            },
+                            ["["] = {
+                                desc = "Square brackets",
+                                map = function()
+                                    surround.surround_region(
+                                        surround.patterns.WORD,
+                                        surround.charpairs.square_brackets
+                                    )
+                                end,
+                            },
+                            ["{"] = {
+                                desc = "Curly braces",
+                                map = function()
+                                    surround.surround_region(
+                                        surround.patterns.WORD,
+                                        surround.charpairs.curly_braces
+                                    )
+                                end,
+                            },
+                            ["<"] = {
+                                desc = "Angle brackets",
+                                map = function()
+                                    surround.surround_region(
+                                        surround.patterns.WORD,
+                                        surround.charpairs.angle_brackets
+                                    )
+                                end,
+                            }
+                        },
+                    },
+                },
+            }
+        }
     },
 })
 
