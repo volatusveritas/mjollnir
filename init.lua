@@ -208,8 +208,12 @@ keymap.set("n", {
         map = "dd",
     },
     s = {
-        desc = "Start a search",
+        desc = "Start a search forward",
         map = "/",
+    },
+    S = {
+        desc = "Start a search backwards",
+        map = "?",
     },
 })
 
@@ -247,4 +251,14 @@ keymap.set("v", {
             },
         },
     },
+    s = {
+        desc = "Start search mode",
+        map = "/",
+    },
+})
+
+vim.filetype.add({
+    extension = {
+        vnotes = 'vnotes'
+    }
 })
