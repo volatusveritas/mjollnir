@@ -9,8 +9,9 @@ vim.cmd([[hi VNoteBold gui=bold]])
 
 vim.cmd([[syntax match Identifier /^\*\+\s\+.*$/]])
 vim.cmd([[syntax match Comment /^#.*$/]])
-vim.cmd([[syntax match VNoteItalic =/\<.*\>/=]])
-vim.cmd([[syntax match VNoteBold =\*\<.*\>\*=]])
+vim.cmd([[syntax match VNoteItalic /_\S\@=.\+\S\@<=_/]])
+vim.cmd([[syntax match VNoteBold /\*\S\@=.\+\S\@<=\*/]])
+vim.cmd([[syntax match Number /\d\+\(\.\d\+\)\?/]])
 
 vim.cmd([[syntax region String start=/"/ end=/"/]])
 
