@@ -40,8 +40,29 @@ local function get_region(pattern)
     return region_start, region_end
 end
 
-local function get_surround(pattern, pair)
-    return get_region(string.format("%s%s%s", pair[1], pattern, pair[2]))
+local function get_surround(pair)
+    local cursor_col = vim.fn.col(".")
+    local line = vim.fn.getline(".")
+    local line_length = #line
+
+    local match_left = string.find(
+        string.reverse(line),
+        pair[1],
+        line_length - cursor_col,
+        true
+    )
+
+    if match_left == nil then
+        return nil
+    end
+
+    local match_right = string.find(line, pair[2], cursor_col, true)
+
+    if match_right == nil then
+        return nil
+    end
+
+    return line_length - match_left, match_right - 1
 end
 
 function M.surround_region(pattern, pair)
@@ -71,6 +92,34 @@ function M.surround_region(pattern, pair)
         lnum - 1,
         end_idx + 1,
         { string.format("%s%s%s", pair[1], original_text[1], pair[2]) }
+    )
+end
+
+function M.delete_surround(pair)
+    local start_idx, end_idx = get_surround(pair)
+
+    if start_idx == nil then
+        return nil
+    end
+
+    local lnum = vim.fn.line(".")
+
+    local original_text = vim.api.nvim_buf_get_text(
+        0,
+        lnum - 1,
+        start_idx,
+        lnum - 1,
+        end_idx + 1,
+        {}
+    )
+
+    vim.api.nvim_buf_set_text(
+        0,
+        lnum - 1,
+        start_idx,
+        lnum - 1,
+        end_idx + 1,
+        { string.sub(original_text[1], 2, #(original_text[1])- 1) }
     )
 end
 

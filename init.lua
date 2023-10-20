@@ -303,7 +303,45 @@ keymap.set("n", {
                         },
                     },
                 },
-            }
+            },
+            -- sourround
+            d = {
+                desc = "Delete",
+                map = {
+                    ["("] = {
+                        desc = "Parentheses",
+                        map = function()
+                            surround.delete_surround(
+                                surround.charpairs.parentheses
+                            )
+                        end,
+                    },
+                    ["["] = {
+                        desc = "Square brackets",
+                        map = function()
+                            surround.delete_surround(
+                                surround.charpairs.square_brackets
+                            )
+                        end,
+                    },
+                    ["{"] = {
+                        desc = "Curly braces",
+                        map = function()
+                            surround.delete_surround(
+                                surround.charpairs.curly_braces
+                            )
+                        end,
+                    },
+                    ["<"] = {
+                        desc = "Angle brackets",
+                        map = function()
+                            surround.delete_surround(
+                                surround.charpairs.angle_brackets
+                            )
+                        end,
+                    },
+                },
+            },
         }
     },
 })
