@@ -2,7 +2,7 @@ local M = {}
 
 function M.setup()
     vim.api.nvim_create_user_command("VoltColorschemeReload", function(ctx)
-        vim.cmd(("colorscheme %s"):format(vim.g.colors_name))
+        require("volt.theme").activate()
     end, {})
 end
 

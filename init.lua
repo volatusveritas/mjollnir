@@ -11,6 +11,7 @@ vim.o.splitright = true
 vim.o.splitbelow = true
 vim.o.scrolloff = 5
 vim.o.termguicolors = true
+vim.o.hlsearch = false
 vim.o.timeout = false
 vim.o.mouse = ""
 vim.opt.path:append("**")
@@ -24,9 +25,6 @@ vim.cmd("filetype plugin on")
 
 -- Activate indent plugins
 vim.cmd("filetype indent on")
-
--- Set custom colorscheme
-vim.cmd("colorscheme voltred")
 
 -- Load colorscheme utilities
 require("volt.colorscheme").setup()
@@ -55,6 +53,9 @@ require("volt.fold").setup()
 -- Setup the description table
 -- TODO: this module is WIP.
 --require("volt.desctable").setup()
+
+-- Load and set the custom colorscheme
+require("volt.theme").activate()
 
 -- Imports
 local keymap = require("volt.keymap")
@@ -343,6 +344,35 @@ keymap.set("n", {
                 },
             },
         }
+    },
+    ["<Leader>e"] = {
+        desc = "Quickfix list",
+        map = {
+            l = {
+                desc = "Jump to next error",
+                map = "<Cmd>cnext<CR>",
+            },
+            h = {
+                desc = "Jump to previous error",
+                map = "<Cmd>cprevious<CR>",
+            },
+            j = {
+                desc = "Jump to the first error above",
+                map = "<Cmd>cabove<CR>",
+            },
+            k = {
+                desc = "Jump to the first error below",
+                map = "<Cmd>cbelow<CR>",
+            },
+            r = {
+                desc = "Rewind the error list",
+                map = "<Cmd>cfirst<CR>",
+            },
+            ["<Leader>"] = {
+                desc = "Show error list",
+                map = "<Cmd>clist<CR>",
+            },
+        },
     },
 })
 
