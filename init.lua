@@ -358,11 +358,11 @@ keymap.set("n", {
             },
             j = {
                 desc = "Jump to the first error above",
-                map = "<Cmd>cabove<CR>",
+                map = "<Cmd>cbelow<CR>",
             },
             k = {
                 desc = "Jump to the first error below",
-                map = "<Cmd>cbelow<CR>",
+                map = "<Cmd>cabove<CR>",
             },
             r = {
                 desc = "Rewind the error list",
