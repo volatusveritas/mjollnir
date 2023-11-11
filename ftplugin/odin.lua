@@ -4,6 +4,24 @@ vim.bo.commentstring = "// %s"
 local keymap = require('volt.keymap')
 local odin = require('volt.lang.odin')
 
+local ns = vim.api.nvim_create_namespace('volt.ftplugin.odin')
+
+local function populate_extmarks()
+    local qflist = vim.fn.getqflist()
+
+    vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+
+    for _, entry in ipairs(qflist) do
+        vim.api.nvim_buf_set_extmark(
+            entry.bufnr,
+            ns,
+            entry.lnum - 1,
+            entry.col - 1,
+            { virt_text = { { entry.text, 'Comment' } } }
+        )
+    end
+end
+
 keymap.set("n", {['<LocalLeader>'] = {
     desc = 'Odin special commands',
     opts = { buffer = 0 },
@@ -33,7 +51,7 @@ keymap.set("n", {['<LocalLeader>'] = {
                     return
                 end
 
-                odin.check_package(package_name)
+                odin.check_package(package_name, populate_extmarks)
             end,
         },
     },
