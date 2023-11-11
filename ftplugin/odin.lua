@@ -6,6 +6,8 @@ local odin = require('volt.lang.odin')
 
 local ns = vim.api.nvim_create_namespace('volt.ftplugin.odin')
 
+local procedure_pat = [[/^\w*%s\w*\s*::\s*proc]]
+
 local function populate_extmarks()
     local qflist = vim.fn.getqflist()
 
@@ -29,13 +31,13 @@ keymap.set("n", {['<LocalLeader>'] = {
         f = {
             desc = "Find procedure",
             map = function()
-                vim.ui.input({ prompt = "Procedure name: " }, function(input)
-                    if input == nil then
-                        return
-                    end
+                local proc_name = vim.fn.input('Procedure name: ', '')
 
-                    vim.cmd(string.format([[/^\w*%s\w*\s*::\s*proc]], input))
-                end)
+                if proc_name == '' then
+                    return
+                end
+
+                vim.cmd(string.format(procedure_pat, proc_name))
             end,
         },
         e = {
