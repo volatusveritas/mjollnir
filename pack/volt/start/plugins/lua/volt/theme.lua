@@ -33,7 +33,7 @@ end
 function M.activate()
     local ctable = { "hi clear\n" }
 
-    set_highlight(ctable, "ColorColumn", nil, M.colors.bg)
+    set_highlight(ctable, "ColorColumn", nil, M.colors.bgd1)
     set_highlight(ctable, "Comment", M.colors.fg2, nil, "italic")
     set_highlight(ctable, "CursorColumn", nil, M.colors.bg1)
     set_highlight(ctable, "CursorLine", nil, M.colors.bg1)
@@ -55,7 +55,7 @@ function M.activate()
     set_highlight(ctable, "SpecialKey", M.colors.cyan)
     set_highlight(ctable, "Statement", M.colors.red)
     set_highlight(ctable, "StatusLine", M.colors.bgd2, M.colors.red, "NONE")
-    set_highlight(ctable, "StatusLineNC", M.colors.bgd2, M.colors.bg2)
+    set_highlight(ctable, "StatusLineNC", M.colors.bg2, M.colors.bg, "NONE")
     set_highlight(ctable, "String", M.colors.lime)
     set_highlight(ctable, "Title", M.colors.lime, nil, "bold")
     set_highlight(ctable, "Todo", M.colors.bgd2, M.colors.orange, "bold")
