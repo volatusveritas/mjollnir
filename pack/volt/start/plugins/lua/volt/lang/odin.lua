@@ -1,19 +1,18 @@
 local M = {}
 
+-- Imports
+local msg = require('volt.util.msg')
+
 M.error_format = '%f(%l:%c) %m'
 
-local function info(msg)
-    vim.api.nvim_echo({{msg}}, false, {})
-end
-
 function M.check_package(package_name, fix_callback)
-    info(string.format('Checking package "%s".', package_name))
+    msg.info(string.format('Checking package "%s".', package_name))
 
     local cmd = vim.system({'odin', 'check', package_name, '-terse-errors'})
     local event = cmd:wait()
 
     if event.stdout ~= '' or event.stderr == '' then
-        info('No errors or warnings caught.')
+        msg.info('No errors or warnings caught.')
         return
     end
 
@@ -36,7 +35,10 @@ function M.check_package(package_name, fix_callback)
         title = string.format('Odin check (%s)', package_name),
     })
 
-    info(string.format('%d errors added to the quickfix list.', line_amount))
+    msg.info(string.format(
+        '%d errors added to the quickfix list.',
+        line_amount
+    ))
 
     fix_callback()
 end
