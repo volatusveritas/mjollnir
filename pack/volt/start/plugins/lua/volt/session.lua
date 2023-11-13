@@ -36,6 +36,28 @@ local function source_session(name)
     vim.cmd(string.format('source %s', name_to_path(name)))
 end
 
+local function delete_session(name)
+    local path = name_to_path(name)
+
+    if vim.fn.filereadable(path) == 0 then
+        msg.err('Session file not found.')
+    end
+
+    vim.fn.delete(path)
+
+    local pos = -1
+    for idx, item in ipairs(M.sessionlist) do
+        if item == name then
+            pos = idx
+            break
+        end
+    end
+
+    table.remove(M.sessionlist, pos)
+
+    msg.info(string.format('Session deleted: %s', name))
+end
+
 function M.update_sessionlist()
     if vim.fn.isdirectory(sessions_path) == 0 then
         msg.info(
@@ -86,6 +108,26 @@ function M.prompt_source_session()
             end
 
             source_session(item)
+        end
+    )
+end
+
+function M.prompt_delete_session()
+    if #M.sessionlist == 0 then
+        msg.info('Sessionlist is empty. Skipping session deletion prompt.')
+        return
+    end
+
+    ui.selection(
+        'Delete session',
+        M.sessionlist,
+        nil,
+        function(idx, item)
+            if idx == nil then
+                return
+            end
+
+            delete_session(item)
         end
     )
 end

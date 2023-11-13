@@ -385,6 +385,10 @@ keymap.set("n", {
                 desc = 'Save session',
                 map = session.prompt_save_session,
             },
+            d = {
+                desc = "Delete session",
+                map = session.prompt_delete_session,
+            },
         },
     },
 })
