@@ -10,7 +10,17 @@ local augroup = vim.api.nvim_create_augroup('volt.session', {})
 M.sessionlist = {}
 
 local function name_to_path(name)
-    return string.format('%s/%s', sessions_path, name)
+    return vim.fs.joinpath(sessions_path, name)
+end
+
+local function save_session(name)
+    local path = name_to_path(name)
+    vim.fn.mkdir(sessions_path, 'p')
+    vim.cmd(string.format('mksession! %s', path))
+
+    if not vim.list_contains(M.sessionlist, name) then
+        table.insert(M.sessionlist, name)
+    end
 end
 
 local function save_current_session()
@@ -18,7 +28,7 @@ local function save_current_session()
         return
     end
 
-    vim.cmd(string.format('mksession! %s', vim.v.this_session))
+    save_session(vim.fs.basename(vim.v.this_session))
 end
 
 local function source_session(name)
@@ -78,6 +88,16 @@ function M.prompt_source_session()
             source_session(item)
         end
     )
+end
+
+function M.prompt_save_session()
+    local name = vim.fn.input('Save session as: ')
+
+    if name == nil then
+        return
+    end
+
+    save_session(name)
 end
 
 function M.setup()

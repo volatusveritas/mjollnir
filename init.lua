@@ -382,6 +382,10 @@ keymap.set("n", {
                 desc = 'Load session',
                 map = session.prompt_source_session,
 	    },
+            s = {
+                desc = 'Save session',
+                map = session.prompt_save_session,
+            },
         },
     },
 })
