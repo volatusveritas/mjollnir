@@ -1,7 +1,9 @@
 local M = {}
 
-function M.info(msg)
-    vim.api.nvim_echo({{msg}}, false, {})
+function M.info(msg, populate_history)
+    populate_history = populate_history or false
+
+    vim.api.nvim_echo({{msg}}, populate_history, {})
 end
 
 function M.errnf(msg)

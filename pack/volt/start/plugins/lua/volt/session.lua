@@ -2,55 +2,15 @@ local M = {}
 
 -- Imports
 local msg = require('volt.util.msg')
+local ui = require('volt.util.ui')
+
+local sessions_path = '.nvim/sessions'
+local augroup = vim.api.nvim_create_augroup('volt.session', {})
 
 M.sessionlist = {}
-M.sessionlist_path = string.format(
-    "%s/volt_sessionlist.txt",
-    vim.api.nvim_list_runtime_paths()[1]
-)
 
-local function save_sessionlist_to(file)
-    file:write(table.concat(M.sessionlist, '\n'))
-end
-
-function M.save_sessionlist()
-    local file, err = io.open(M.sessionlist_path, 'w')
-
-    if file == nil then
-        msg.err(string.format('Failed to save sessionlist: %s', err))
-        return true
-    end
-
-    save_sessionlist_to(file)
-
-    file:close()
-
-    return false
-end
-
-function M.generate_sessionlist_file()
-    local err = M.save_sessionlist()
-
-    if not err then
-        msg.info('Sessionlist file generated.')
-    end
-end
-
-function M.read_sessionlist()
-    local file, err = io.open(M.sessionlist_path, 'r')
-
-    if file == nil then
-        msg.err(string.format('Failed to read sessionlist: %s', err))
-        return
-    end
-
-    local next_index = 1
-    for line in file:lines() do
-        M.sessionlist[next_index] = line
-        next_index = next_index + 1
-    end
-
-    file:close()
+local function name_to_path(name)
+    return string.format('%s/%s', sessions_path, name)
 end
 
 local function save_current_session()
@@ -61,39 +21,72 @@ local function save_current_session()
     vim.cmd(string.format('mksession! %s', vim.v.this_session))
 end
 
+local function source_session(name)
+    save_current_session()
+    vim.cmd(string.format('source %s', name_to_path(name)))
+end
+
+function M.update_sessionlist()
+    if vim.fn.isdirectory(sessions_path) == 0 then
+        msg.info(
+            'Sessions folder not found. Skipping sessionlist loading.',
+            true
+        )
+        return
+    end
+
+    local next_index = 1
+    local outlier_items = 0
+
+    for item, class in vim.fs.dir(sessions_path) do
+        if class == 'file' then
+            M.sessionlist[next_index] = item
+            next_index = next_index + 1
+        else
+            outlier_items = outlier_items + 1
+        end
+    end
+
+    msg.info('Sessionlist loaded.', true)
+
+    if outlier_items > 0 then
+        msg.info(
+            string.format(
+                '%d outliers found while loading the sessionlist.',
+                outlier_items
+            ),
+            true
+        )
+    end
+end
+
+function M.prompt_source_session()
+    if #M.sessionlist == 0 then
+        msg.info('Sessionlist is empty. Skipping session selection prompt.')
+        return
+    end
+
+    ui.selection(
+        'Source session',
+        M.sessionlist,
+        nil,
+        function(idx, item)
+            if idx == nil then
+                return
+            end
+
+            source_session(item)
+        end
+    )
+end
+
 function M.setup()
-    local augroup = vim.api.nvim_create_augroup('volt.session', {})
+    M.update_sessionlist()
 
-    M.read_sessionlist()
-
-    -- Autosave session when leaving if opened with a session
     vim.api.nvim_create_autocmd('VimLeavePre', {
         group = augroup,
         callback = save_current_session,
     })
-
-    vim.api.nvim_create_autocmd('SessionLoadPost', {
-        group = augroup,
-        callback = function()
-            if vim.list_contains(M.sessionlist, vim.v.this_session) then
-                return
-            end
-
-            print('Saved session: ', vim.v.this_session)
-            table.insert(M.sessionlist, vim.v.this_session)
-        end,
-    })
-
-    vim.api.nvim_create_autocmd('VimLeavePre', {
-        group = augroup,
-        callback = M.save_sessionlist,
-    })
-
-    vim.api.nvim_create_user_command(
-        'VoltSessionlistGenerate',
-        M.generate_sessionlist_file,
-        {}
-    )
 end
 
 return M

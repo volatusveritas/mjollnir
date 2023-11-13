@@ -6,9 +6,11 @@ local keymap = require("volt.keymap")
 
 local augroup = vim.api.nvim_create_augroup("volt.util.ui", {})
 
+-- title: string
+-- options: string[]
+-- default: string
+-- callback: fun()
 function M.selection(title, options, default, callback)
-    -- TODO: add support for default selection (?)
-
     local option_amount = #options
 
     local buf = vim.api.nvim_create_buf(false, true)

@@ -59,8 +59,9 @@ require("volt.theme").activate()
 
 -- Imports
 local keymap = require("volt.keymap")
-
 local surround = require("volt.surround")
+local ui = require('volt.util.ui')
+local session = require('volt.session')
 
 -- Keymaps
 keymap.set("n", {
@@ -372,6 +373,15 @@ keymap.set("n", {
                 desc = "Show error list",
                 map = "<Cmd>clist<CR>",
             },
+        },
+    },
+    ['<Leader>x'] = {
+        desc = 'Session',
+        map = {
+            l = {
+                desc = 'Load session',
+                map = session.prompt_source_session,
+	    },
         },
     },
 })
