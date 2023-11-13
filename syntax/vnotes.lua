@@ -31,7 +31,6 @@ vim.cmd([=[
     syntax match Number /\d\+\(\.\d\+\)\?/
 
     syntax region String start=/"/ end=/"/
-    syntax region String start=/'/ end=/'/
     syntax region VNoteRef start=/\[/ end=/\]/
 
     syntax keyword Special INFO
