@@ -1,4 +1,4 @@
-M = {}
+local M = {}
 
 M.colors = {
     cyan        = "#7AF3F3",

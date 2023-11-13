@@ -60,7 +60,6 @@ require("volt.theme").activate()
 -- Imports
 local keymap = require("volt.keymap")
 local surround = require("volt.surround")
-local ui = require('volt.util.ui')
 local session = require('volt.session')
 
 -- Keymaps

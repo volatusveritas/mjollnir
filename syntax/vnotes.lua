@@ -4,7 +4,6 @@ end
 
 -- Imports
 local theme = require('volt.theme')
-local keymap = require('volt.keymap')
 
 vim.cmd('let b:current_syntax = "notes"')
 

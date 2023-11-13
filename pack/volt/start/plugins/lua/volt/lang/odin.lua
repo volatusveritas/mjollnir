@@ -23,7 +23,7 @@ function M.check_package(package_name, fix_callback)
 
     local lines = vim.split(event.stderr, '\n')
 
-    line_amount = #lines
+    local line_amount = #lines
 
     -- Last line is empty because of the last newline
     lines[line_amount] = nil
