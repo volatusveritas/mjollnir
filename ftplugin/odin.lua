@@ -53,7 +53,8 @@ keymap.set("n", {['<LocalLeader>'] = {
                     return
                 end
 
-                odin.check_package(package_name, populate_extmarks)
+                -- TODO: fix the populate_extmarks function and use it here
+                odin.check_package(package_name, function() end)
             end,
         },
     },

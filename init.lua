@@ -102,6 +102,14 @@ keymap.set("n", {
                         map = "<C-w>L",
                         desc = "to the right.",
                     },
+                    r = {
+                        desc = 'Rotate windows upwards',
+                        map = '<C-w>R',
+                    },
+                    t = {
+                        desc = 'Move window to new tab',
+                        map = '<C-w>T',
+                    },
                 },
             },
             q = {
@@ -132,6 +140,18 @@ keymap.set("n", {
                         desc = "Go to tag on vertical split.",
                     },
                 },
+            },
+            r = {
+                desc = 'Rotate windows downwards',
+                map = '<C-w>r',
+            },
+            t = {
+                desc = 'Go to top window',
+                map = '<C-w>t',
+            },
+            x = {
+                desc = 'Exchange window',
+                map = '<C-w>x',
             },
         },
     },
