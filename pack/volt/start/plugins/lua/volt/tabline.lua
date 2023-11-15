@@ -10,19 +10,19 @@ local function format_tab_name(tabnr)
     local bufnr = buflist[winnr]
     local name = vim.fn.bufname(bufnr)
 
-    if name == '' then
-        return 'Unnamed'
-    end
-
-    local parent = vim.fs.basename(vim.fs.dirname(name))
-    local base = vim.fs.basename(name)
-
     local fullname
 
-    if parent == '.' then
-        fullname = base
+    if name == '' then
+        fullname = 'Unnamed'
     else
-        fullname = string.format('• %s/%s', parent, base)
+        local parent = vim.fs.basename(vim.fs.dirname(name))
+        local base = vim.fs.basename(name)
+
+        if parent == '.' then
+            fullname = base
+        else
+            fullname = string.format('• %s/%s', parent, base)
+        end
     end
 
     local highlight
