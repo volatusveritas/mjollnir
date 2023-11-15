@@ -414,6 +414,14 @@ keymap.set("n", {
             },
         },
     },
+    ['[t'] = {
+        desc = 'Go to previous tab',
+        map = 'gT',
+    },
+    [']t'] = {
+        desc = 'Go to next tab',
+        map = 'gt',
+    },
 })
 
 keymap.set("v", {
