@@ -47,6 +47,9 @@ require("volt.comment").setup()
 -- Setup autosession features
 require("volt.session").setup()
 
+-- Setup custom tabline
+require('volt.tabline').setup()
+
 -- Setup custom folds
 require("volt.fold").setup()
 

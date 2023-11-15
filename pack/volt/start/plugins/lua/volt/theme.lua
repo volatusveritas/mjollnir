@@ -62,6 +62,9 @@ function M.activate()
     set_highlight(ctable, "Type", M.colors.orange)
     set_highlight(ctable, "Visual", nil, M.colors.bg1)
     set_highlight(ctable, "WinSeparator", M.colors.bg2)
+    set_highlight(ctable, "TabLine", "NONE", M.colors.bg, "NONE")
+    set_highlight(ctable, "TabLineFill", "NONE", M.colors.bgd2, "NONE")
+    set_highlight(ctable, "TabLineSel", M.colors.bgd2, M.colors.red, "italic")
 
     vim.cmd(table.concat(ctable))
     vim.g.colors_name = "voltred"
