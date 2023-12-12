@@ -22,10 +22,12 @@ function M.apply(package)
         vim.bo[name] = value
     end
 
+    local win_id = vim.fn.win_getid()
+
     for name, value in pairs(package.wo) do
         vim.api.nvim_set_option_value(name, value, {
             scope = "local",
-            win = vim.fn.win_getid()
+            win = win_id
         })
     end
 end

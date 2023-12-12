@@ -43,6 +43,7 @@ vim.cmd([[syntax match Float /\d\+\.\d\+/]])
 vim.cmd([[syntax match Function /\<\w\+\>\((\)\@=/]])
 vim.cmd([[syntax match Constant /\<\(\u\|_\)\+\>/]])
 vim.cmd([[syntax match Special /#\w\+/]])
+vim.cmd([[syntax match Special /@(.*)/]])
 
 vim.cmd([[syntax region String start=/"/ skip=/\\"/ end=/"/]])
 vim.cmd([[syntax region Character start=/'/ end=/'/]])

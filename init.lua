@@ -47,11 +47,14 @@ require("volt.comment").setup()
 -- Setup autosession features
 require("volt.session").setup()
 
+-- Setup project management features
+require('volt.project').setup()
+
 -- Setup custom tabline
 require('volt.tabline').setup()
 
 -- Setup custom folds
-require("volt.fold").setup()
+-- require('volt.fold').setup()
 
 -- Setup the description table
 -- TODO: this module is WIP.
@@ -60,13 +63,33 @@ require("volt.fold").setup()
 -- Load and set the custom colorscheme
 require("volt.theme").activate()
 
+-- Configure Treesitter
+---- Use curl instead of git
+require('nvim-treesitter.install').prefer_git = false
+require('nvim-treesitter.configs').setup({
+    incremental_selection = {
+        enable = true,
+        keymaps = {
+            init_selection = 'gnn',
+            node_incremental = 'grn',
+            scope_incremental = 'grc',
+            node_decremental = 'grm',
+        },
+    },
+})
+
+vim.o.foldmethod = expr
+vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+vim.o.foldenable = false
+
 -- Imports
 local keymap = require("volt.keymap")
 local surround = require("volt.surround")
 local session = require('volt.session')
+local project = require('volt.project')
 
 -- Keymaps
-keymap.set("n", {
+keymap.set('n', {
     w = {
         desc = "Window",
         map = {
@@ -158,18 +181,232 @@ keymap.set("n", {
             },
         },
     },
-    ["<Leader>f"] = {
-        desc = "File",
+    ['<Leader>'] = {
         map = {
+            f = {
+                desc = 'file:',
+                map = {
+                    s = {
+                        map = '<Cmd>update<CR>',
+                        desc = 'save current'
+                    },
+                    S = {
+                        map = '<Cmd>wall<CR>',
+                        desc = 'save all'
+                    },
+                },
+            },
+            p = {
+                desc = 'paste from clipboard after cursor',
+                map = '"+p'
+            },
+            P = {
+                desc = 'paste from clipboard before cursor',
+                map = '"+P'
+            },
+            y = {
+                desc = 'copy to clipboard',
+                map = '"+y'
+            },
+            h = {
+                desc = 'stop the search highlighting',
+                map = function()
+                    vim.cmd('nohlsearch')
+                end,
+            },
             s = {
-                map = "<Cmd>update<CR>",
-                desc = "Save the current file."
+                desc = 'surround:',
+                map = {
+                    a = {
+                        desc = 'add',
+                        map = {
+                            iw = {
+                                desc = 'to inner word:',
+                                map = {
+                                    ['('] = {
+                                        desc = 'parentheses',
+                                        map = function()
+                                            surround.surround_region(
+                                                surround.patterns.word,
+                                                surround.charpairs.parentheses
+                                            )
+                                        end,
+                                    },
+                                    ['['] = {
+                                        desc = 'square brackets',
+                                        map = function()
+                                            surround.surround_region(
+                                                surround.patterns.word,
+                                                surround.charpairs.square_brackets
+                                            )
+                                        end,
+                                    },
+                                    ['{'] = {
+                                        desc = 'curly braces',
+                                        map = function()
+                                            surround.surround_region(
+                                                surround.patterns.word,
+                                                surround.charpairs.curly_braces
+                                            )
+                                        end,
+                                    },
+                                    ['<'] = {
+                                        desc = 'angle brackets',
+                                        map = function()
+                                            surround.surround_region(
+                                                surround.patterns.word,
+                                                surround.charpairs.angle_brackets
+                                            )
+                                        end,
+                                    }
+                                },
+                            },
+                            iW = {
+                                desc = 'to inner WORD:',
+                                map = {
+                                    ['('] = {
+                                        desc = 'parentheses',
+                                        map = function()
+                                            surround.surround_region(
+                                                surround.patterns.WORD,
+                                                surround.charpairs.parentheses
+                                            )
+                                        end,
+                                    },
+                                    ['['] = {
+                                        desc = 'square brackets',
+                                        map = function()
+                                            surround.surround_region(
+                                                surround.patterns.WORD,
+                                                surround.charpairs.square_brackets
+                                            )
+                                        end,
+                                    },
+                                    ['{'] = {
+                                        desc = 'curly braces',
+                                        map = function()
+                                            surround.surround_region(
+                                                surround.patterns.WORD,
+                                                surround.charpairs.curly_braces
+                                            )
+                                        end,
+                                    },
+                                    ['<'] = {
+                                        desc = 'angle brackets',
+                                        map = function()
+                                            surround.surround_region(
+                                                surround.patterns.WORD,
+                                                surround.charpairs.angle_brackets
+                                            )
+                                        end,
+                                    }
+                                },
+                            },
+                        },
+                    },
+                    d = {
+                        desc = "delete",
+                        map = {
+                            ['('] = {
+                                desc = 'parentheses',
+                                map = function()
+                                    surround.delete_surround(
+                                        surround.charpairs.parentheses
+                                    )
+                                end,
+                            },
+                            ['['] = {
+                                desc = 'square brackets',
+                                map = function()
+                                    surround.delete_surround(
+                                        surround.charpairs.square_brackets
+                                    )
+                                end,
+                            },
+                            ['{'] = {
+                                desc = 'curly braces',
+                                map = function()
+                                    surround.delete_surround(
+                                        surround.charpairs.curly_braces
+                                    )
+                                end,
+                            },
+                            ['<'] = {
+                                desc = 'angle brackets',
+                                map = function()
+                                    surround.delete_surround(
+                                        surround.charpairs.angle_brackets
+                                    )
+                                end,
+                            },
+                        },
+                    },
+                }
             },
-            S = {
-                map = "<Cmd>wall<CR>",
-                desc = "Save all files."
+            e = {
+                desc = 'quickfix list:',
+                map = {
+                    l = {
+                        desc = 'jump to next error',
+                        map = "<Cmd>cnext<CR>",
+                    },
+                    h = {
+                        desc = 'jump to previous error',
+                        map = "<Cmd>cprevious<CR>",
+                    },
+                    j = {
+                        desc = 'jump to the first error above',
+                        map = "<Cmd>cbelow<CR>",
+                    },
+                    k = {
+                        desc = 'jump to the first error below',
+                        map = "<Cmd>cabove<CR>",
+                    },
+                    r = {
+                        desc = 'rewind the error list',
+                        map = "<Cmd>cfirst<CR>",
+                    },
+                    ["<Leader>"] = {
+                        desc = 'show error list',
+                        map = "<Cmd>clist<CR>",
+                    },
+                },
             },
-        },
+            x = {
+                desc = 'session:',
+                map = {
+                    l = {
+                        desc = 'load',
+                        map = session.prompt_source_session,
+                    },
+                    s = {
+                        desc = 'save',
+                        map = session.prompt_save_session,
+                    },
+                    d = {
+                        desc = 'delete',
+                        map = session.prompt_delete_session,
+                    },
+                },
+            },
+            r = {
+                desc = 'project:',
+                map = {
+                    l = {
+                        desc = 'load',
+                        map = project.prompt_load_project
+                    },
+                    s = {
+                        desc = 'save',
+                        map = project.prompt_save_project
+                    },
+                    d = {
+                        desc = 'delete',
+                        map = project.prompt_delete_project
+                    },
+                },
+            },
+        }
     },
     g = {
         desc = "Go",
@@ -200,18 +437,6 @@ keymap.set("n", {
             },
         },
     },
-    ["<Leader>p"] = {
-        desc = "Paste from clipboard after cursor",
-        map = "\"+p"
-    },
-    ["<Leader>P"] = {
-        desc = "Paste from clipboard before cursor",
-        map = "\"+P"
-    },
-    ["<Leader>y"] = {
-        desc = "Copy to clipboard",
-        map = "\"+y"
-    },
     ["[b"] = {
         desc = "Go to previous buffer",
         map = "<Cmd>bprevious<CR>",
@@ -219,12 +444,6 @@ keymap.set("n", {
     ["]b"] = {
         desc = "Go to next buffer",
         map = "<Cmd>bnext<CR>",
-    },
-    ["<Leader>h"] = {
-        desc = "Stop the search highlighting",
-        map = function()
-            vim.cmd("nohlsearch")
-        end,
     },
     dl = {
         desc = "Delete line",
@@ -237,182 +456,6 @@ keymap.set("n", {
     S = {
         desc = "Start a search backwards",
         map = "?",
-    },
-    ["<Leader>s"] = {
-        desc = "Surround",
-        map = {
-            a = {
-                desc = "Add",
-                map = {
-                    iw = {
-                        desc = "Inner word",
-                        map = {
-                            ["("] = {
-                                desc = "Parentheses",
-                                map = function()
-                                    surround.surround_region(
-                                        surround.patterns.word,
-                                        surround.charpairs.parentheses
-                                    )
-                                end,
-                            },
-                            ["["] = {
-                                desc = "Square brackets",
-                                map = function()
-                                    surround.surround_region(
-                                        surround.patterns.word,
-                                        surround.charpairs.square_brackets
-                                    )
-                                end,
-                            },
-                            ["{"] = {
-                                desc = "Curly braces",
-                                map = function()
-                                    surround.surround_region(
-                                        surround.patterns.word,
-                                        surround.charpairs.curly_braces
-                                    )
-                                end,
-                            },
-                            ["<"] = {
-                                desc = "Angle brackets",
-                                map = function()
-                                    surround.surround_region(
-                                        surround.patterns.word,
-                                        surround.charpairs.angle_brackets
-                                    )
-                                end,
-                            }
-                        },
-                    },
-                    iW = {
-                        desc = "Inner WORD",
-                        map = {
-                            ["("] = {
-                                desc = "Parentheses",
-                                map = function()
-                                    surround.surround_region(
-                                        surround.patterns.WORD,
-                                        surround.charpairs.parentheses
-                                    )
-                                end,
-                            },
-                            ["["] = {
-                                desc = "Square brackets",
-                                map = function()
-                                    surround.surround_region(
-                                        surround.patterns.WORD,
-                                        surround.charpairs.square_brackets
-                                    )
-                                end,
-                            },
-                            ["{"] = {
-                                desc = "Curly braces",
-                                map = function()
-                                    surround.surround_region(
-                                        surround.patterns.WORD,
-                                        surround.charpairs.curly_braces
-                                    )
-                                end,
-                            },
-                            ["<"] = {
-                                desc = "Angle brackets",
-                                map = function()
-                                    surround.surround_region(
-                                        surround.patterns.WORD,
-                                        surround.charpairs.angle_brackets
-                                    )
-                                end,
-                            }
-                        },
-                    },
-                },
-            },
-            -- sourround
-            d = {
-                desc = "Delete",
-                map = {
-                    ["("] = {
-                        desc = "Parentheses",
-                        map = function()
-                            surround.delete_surround(
-                                surround.charpairs.parentheses
-                            )
-                        end,
-                    },
-                    ["["] = {
-                        desc = "Square brackets",
-                        map = function()
-                            surround.delete_surround(
-                                surround.charpairs.square_brackets
-                            )
-                        end,
-                    },
-                    ["{"] = {
-                        desc = "Curly braces",
-                        map = function()
-                            surround.delete_surround(
-                                surround.charpairs.curly_braces
-                            )
-                        end,
-                    },
-                    ["<"] = {
-                        desc = "Angle brackets",
-                        map = function()
-                            surround.delete_surround(
-                                surround.charpairs.angle_brackets
-                            )
-                        end,
-                    },
-                },
-            },
-        }
-    },
-    ["<Leader>e"] = {
-        desc = "Quickfix list",
-        map = {
-            l = {
-                desc = "Jump to next error",
-                map = "<Cmd>cnext<CR>",
-            },
-            h = {
-                desc = "Jump to previous error",
-                map = "<Cmd>cprevious<CR>",
-            },
-            j = {
-                desc = "Jump to the first error above",
-                map = "<Cmd>cbelow<CR>",
-            },
-            k = {
-                desc = "Jump to the first error below",
-                map = "<Cmd>cabove<CR>",
-            },
-            r = {
-                desc = "Rewind the error list",
-                map = "<Cmd>cfirst<CR>",
-            },
-            ["<Leader>"] = {
-                desc = "Show error list",
-                map = "<Cmd>clist<CR>",
-            },
-        },
-    },
-    ['<Leader>x'] = {
-        desc = 'Session',
-        map = {
-            l = {
-                desc = 'Load session',
-                map = session.prompt_source_session,
-	    },
-            s = {
-                desc = 'Save session',
-                map = session.prompt_save_session,
-            },
-            d = {
-                desc = "Delete session",
-                map = session.prompt_delete_session,
-            },
-        },
     },
     ['[t'] = {
         desc = 'Go to previous tab',

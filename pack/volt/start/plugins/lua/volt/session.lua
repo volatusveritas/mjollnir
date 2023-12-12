@@ -4,7 +4,7 @@ local M = {}
 local msg = require('volt.util.msg')
 local ui = require('volt.util.ui')
 
-local sessions_path = '.nvim/sessions'
+local sessions_path = '.nvim/local/sessions'
 local augroup = vim.api.nvim_create_augroup('volt.session', {})
 
 M.sessionlist = {}
