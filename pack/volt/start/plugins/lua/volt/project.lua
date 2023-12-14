@@ -125,14 +125,27 @@ local function save_project(title)
 end
 
 local function load_project(title)
-    if get_project_amount() == 0 then
-        msg.info('Project list is empty. Skipping project selection prompt.')
+    vim.cmd(string.format('cd %s', projects[title]))
+    msg.info(string.format('Project "%s" loaded.', title))
+end
+
+local function delete_project(title)
+    projects[title] = nil
+    save_projects()
+    msg.info(string.format('Project "%s" succesfully deleted.', title))
+end
+
+local function rename_project(title, new_title)
+    if projects[new_title] ~= nil then
+        msg.info(string.format('Project "%s" already exists.'), new_title)
         return
     end
 
-    vim.cmd(string.format('cd %s', projects[title]))
+    projects[new_title] = projects[title]
+    projects[title] = nil
+    save_projects()
 
-    msg.info(string.format('Project "%s" loaded.', title))
+    msg.info(string.format('Project "%s" renamed to "%s".', title, new_title))
 end
 
 local function init_projects()
@@ -202,11 +215,37 @@ function M.prompt_delete_project()
             if idx == nil then
                 return
             end
+            
+            delete_project(item)
+        end
+    )
+end
 
-            -- table index is nil
-            projects[item] = nil
-            save_projects()
-            msg.info(string.format('Project "%s" succesfully deleted.', item))
+function M.prompt_rename_project()
+    if get_project_amount() == 0 then
+        msg.info('No projects to delete. Skipping project renaming prompt.')
+        return
+    end
+
+    ui.selection(
+        'Rename Project',
+        get_project_titles(),
+        nil,
+        function(idx, item)
+            if idx == nil then
+                return
+            end
+
+            local new_title = vim.fn.input(string.format(
+                'New title for "%s": ',
+                item
+            ))
+
+            if new_title == '' then
+                return
+            end
+
+            rename_project(item, new_title)
         end
     )
 end

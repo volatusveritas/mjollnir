@@ -149,6 +149,12 @@ function M.setup()
         group = augroup,
         callback = save_current_session,
     })
+
+    vim.api.nvim_create_autocmd('DirChanged', {
+        group = augroup,
+        pattern = 'global',
+        callback = M.update_sessionlist,
+    })
 end
 
 return M

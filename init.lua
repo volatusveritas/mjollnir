@@ -54,7 +54,9 @@ require('volt.project').setup()
 require('volt.tabline').setup()
 
 -- Setup custom folds
--- require('volt.fold').setup()
+require('volt.fold').setup()
+---- Override with treesitter folds
+vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
 
 -- Setup the description table
 -- TODO: this module is WIP.
@@ -67,6 +69,8 @@ require("volt.theme").activate()
 ---- Use curl instead of git
 require('nvim-treesitter.install').prefer_git = false
 require('nvim-treesitter.configs').setup({
+    ensure_installed = { 'c', 'lua', 'vim', 'vimdoc', 'query', 'odin' },
+    highlight = { enable = true },
     incremental_selection = {
         enable = true,
         keymaps = {
@@ -78,9 +82,11 @@ require('nvim-treesitter.configs').setup({
     },
 })
 
+-- Setup leap.nvim
+require('leap').add_default_mappings()
+
 vim.o.foldmethod = expr
 vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
-vim.o.foldenable = false
 
 -- Imports
 local keymap = require("volt.keymap")
@@ -404,6 +410,10 @@ keymap.set('n', {
                         desc = 'delete',
                         map = project.prompt_delete_project
                     },
+                    r = {
+                        desc = 'rename',
+                        map = project.prompt_rename_project
+                    }
                 },
             },
         }
@@ -448,14 +458,6 @@ keymap.set('n', {
     dl = {
         desc = "Delete line",
         map = "dd",
-    },
-    s = {
-        desc = "Start a search forward",
-        map = "/",
-    },
-    S = {
-        desc = "Start a search backwards",
-        map = "?",
     },
     ['[t'] = {
         desc = 'Go to previous tab',

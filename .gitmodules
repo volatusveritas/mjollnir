@@ -1,3 +1,6 @@
 [submodule "pack/plug/start/nvim-treesitter"]
 	path = pack/plug/start/nvim-treesitter
 	url = https://github.com/nvim-treesitter/nvim-treesitter.git
+[submodule "pack/plug/start/leap.nvim"]
+	path = pack/plug/start/leap.nvim
+	url = https://github.com/ggandor/leap.nvim.git

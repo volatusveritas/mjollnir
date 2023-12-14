@@ -1,15 +1,19 @@
 local M = {}
 
 -- Imports
-local windowutils = require("volt.util.window")
-local keymap = require("volt.keymap")
+local windowutils = require('volt.tui.window')
+local keymap = require('volt.keymap')
 
-local augroup = vim.api.nvim_create_augroup("volt.util.ui", {})
+local augroup = vim.api.nvim_create_augroup('volt.util.ui', {})
 
--- title: string
--- options: string[]
--- default: string
--- callback: fun()
+--- Opens a selection screen with a list of options.
+-- @param title (string) The title of the selection screen.
+-- @param options (string[]) The list of options to display.
+-- @param default (*) The default return value.
+-- @param callback ((number, string) -> *) The selection callback, called when
+-- the user selects an option or quits selection. The first argument is the
+-- index of the selected item, the second is the display string from the
+-- `options` argument for the selected item.
 function M.selection(title, options, default, callback)
     local option_amount = #options
 
