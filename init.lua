@@ -1,6 +1,6 @@
 -- Setup General Neovim options
 vim.o.shiftwidth = 4
-vim.o.colorcolumn = "80"
+vim.o.colorcolumn = '80'
 vim.o.textwidth = 79
 vim.o.number = true
 vim.o.relativenumber = true
@@ -13,39 +13,36 @@ vim.o.scrolloff = 5
 vim.o.termguicolors = true
 vim.o.hlsearch = false
 vim.o.timeout = false
-vim.o.mouse = ""
-vim.opt.path:append("**")
+vim.o.mouse = ''
+vim.opt.path:append('**')
 vim.o.showmode = false
 
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ','
 
 -- Activate filetype plugins
-vim.cmd("filetype plugin on")
+vim.cmd('filetype plugin on')
 
 -- Activate indent plugins
-vim.cmd("filetype indent on")
+vim.cmd('filetype indent on')
 
 -- Load colorscheme utilities
-require("volt.colorscheme").setup()
+require('volt.colorscheme').setup()
 
 -- Load custom statusline
-require("volt.statusline").setup()
+require('volt.statusline').setup()
 
 -- Setup terminal functionalities
-require("volt.terminal").setup()
+require('volt.terminal').setup()
 
 -- Setup Netrw file explorer
-require("volt.explorer").setup()
+require('volt.explorer').setup()
 
 -- Setup text movement features
-require("volt.move").setup()
-
--- Setup commenting commands
-require("volt.comment").setup()
+require('volt.move').setup()
 
 -- Setup autosession features
-require("volt.session").setup()
+require('volt.session').setup()
 
 -- Setup project management features
 require('volt.project').setup()
@@ -58,12 +55,8 @@ require('volt.fold').setup()
 ---- Override with treesitter folds
 vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
 
--- Setup the description table
--- TODO: this module is WIP.
---require("volt.desctable").setup()
-
 -- Load and set the custom colorscheme
-require("volt.theme").activate()
+require('volt.theme').activate()
 
 -- Configure Treesitter
 ---- Use curl instead of git
@@ -85,104 +78,113 @@ require('nvim-treesitter.configs').setup({
 -- Setup leap.nvim
 require('leap').add_default_mappings()
 
-vim.o.foldmethod = expr
+vim.o.foldmethod = 'expr'
 vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
 
 -- Imports
-local keymap = require("volt.keymap")
-local surround = require("volt.surround")
+local u = require('volt.u')
+
+local keymap = require('keymap')
+local comment = require('comment')
+
+local surround = require('volt.surround')
 local session = require('volt.session')
 local project = require('volt.project')
 
 -- Keymaps
 keymap.set('n', {
     w = {
-        desc = "Window",
+        desc = 'window',
         map = {
             h = {
-                map = "<C-w>h",
-                desc = "Jump to the window on the left.",
+                desc = 'jump left',
+                map = '<C-w>h',
             },
             j = {
-                map = "<C-w>j",
-                desc = "Jump to the window below.",
+                desc = 'jump below',
+                map = '<C-w>j',
             },
             k = {
-                map = "<C-w>k",
-                desc = "Jump to the window above.",
+                desc = 'jump above',
+                map = '<C-w>k',
             },
             l = {
-                map = "<C-w>l",
-                desc = "Jump to the window on the right",
+                desc = 'jump right',
+                map = '<C-w>l',
             },
-            ["<Leader>"] = {
-                desc = "Move window",
+            r = {
+                desc = 'rotate',
                 map = {
-                    h = {
-                        map = "<C-w>H",
-                        desc = "to the left.",
-                    },
                     j = {
-                        map = "<C-w>J",
-                        desc = "to the top.",
+                        desc = 'downwards',
+                        map = '<C-w>r',
                     },
                     k = {
-                        desc = "to the bottom.",
-                        map = "<C-w>K",
-                    },
-                    l = {
-                        map = "<C-w>L",
-                        desc = "to the right.",
-                    },
-                    r = {
-                        desc = 'Rotate windows upwards',
+                        desc = 'upwards',
                         map = '<C-w>R',
                     },
+                },
+            },
+            ['<Leader>'] = {
+                desc = 'move',
+                map = {
+                    h = {
+                        desc = 'left',
+                        map = '<C-w>H',
+                    },
+                    j = {
+                        desc = 'top',
+                        map = '<C-w>J',
+                    },
+                    k = {
+                        desc = 'bottom',
+                        map = '<C-w>K',
+                    },
+                    l = {
+                        desc = 'right',
+                        map = '<C-w>L',
+                    },
                     t = {
-                        desc = 'Move window to new tab',
+                        desc = 'to tab',
                         map = '<C-w>T',
                     },
                 },
             },
             q = {
-                map = "<C-w>q",
-                desc = "Close the current window.",
+                desc = 'close current',
+                map = '<C-w>q',
             },
             s = {
-                map = "<C-w>s",
-                desc = "Split the window horizontally.",
+                desc = 'split horizontally',
+                map = '<C-w>s',
             },
             v = {
-                map = "<C-w>v",
-                desc = "Split the window vertically.",
+                desc = 'split vertically',
+                map = '<C-w>v',
             },
             n = {
-                map = "<C-w>n",
-                desc = "Create a new window.",
+                desc = 'create',
+                map = '<C-w>n',
             },
             g = {
-                desc = "Go to tag",
+                desc = 'open tag',
                 map = {
                     s = {
-                        map = "<C-w>s<C-]>",
-                        desc = "Go to tag on horizontal split.",
+                        desc = 'with horizontal split',
+                        map = '<C-w>s<C-]>',
                     },
                     v = {
-                        map = "<C-w>v<C-]>",
-                        desc = "Go to tag on vertical split.",
+                        desc = 'with vertical split',
+                        map = '<C-w>v<C-]>',
                     },
                 },
             },
-            r = {
-                desc = 'Rotate windows downwards',
-                map = '<C-w>r',
-            },
             t = {
-                desc = 'Go to top window',
+                desc = 'go to top',
                 map = '<C-w>t',
             },
             x = {
-                desc = 'Exchange window',
+                desc = 'exchange',
                 map = '<C-w>x',
             },
         },
@@ -190,15 +192,15 @@ keymap.set('n', {
     ['<Leader>'] = {
         map = {
             f = {
-                desc = 'file:',
+                desc = 'file',
                 map = {
                     s = {
+                        desc = 'save current',
                         map = '<Cmd>update<CR>',
-                        desc = 'save current'
                     },
                     S = {
+                        desc = 'save all',
                         map = '<Cmd>wall<CR>',
-                        desc = 'save all'
                     },
                 },
             },
@@ -215,103 +217,108 @@ keymap.set('n', {
                 map = '"+y'
             },
             h = {
-                desc = 'stop the search highlighting',
+                desc = 'stop search highlighting',
                 map = function()
                     vim.cmd('nohlsearch')
                 end,
             },
             s = {
-                desc = 'surround:',
+                desc = 'surround',
                 map = {
                     a = {
                         desc = 'add',
                         map = {
-                            iw = {
-                                desc = 'to inner word:',
+                            i = {
+                                desc = 'to inner',
                                 map = {
-                                    ['('] = {
-                                        desc = 'parentheses',
-                                        map = function()
-                                            surround.surround_region(
-                                                surround.patterns.word,
-                                                surround.charpairs.parentheses
-                                            )
-                                        end,
+                                    w = {
+                                        desc = 'to inner word',
+                                        map = {
+                                            ['('] = {
+                                                desc = 'parentheses',
+                                                map = function()
+                                                    surround.surround_region(
+                                                        surround.patterns.word,
+                                                        surround.charpairs.parentheses
+                                                    )
+                                                end,
+                                            },
+                                            ['['] = {
+                                                desc = 'square brackets',
+                                                map = function()
+                                                    surround.surround_region(
+                                                        surround.patterns.word,
+                                                        surround.charpairs.square_brackets
+                                                    )
+                                                end,
+                                            },
+                                            ['{'] = {
+                                                desc = 'curly braces',
+                                                map = function()
+                                                    surround.surround_region(
+                                                        surround.patterns.word,
+                                                        surround.charpairs.curly_braces
+                                                    )
+                                                end,
+                                            },
+                                            ['<'] = {
+                                                desc = 'angle brackets',
+                                                map = function()
+                                                    surround.surround_region(
+                                                        surround.patterns.word,
+                                                        surround.charpairs.angle_brackets
+                                                    )
+                                                end,
+                                            }
+                                        },
                                     },
-                                    ['['] = {
-                                        desc = 'square brackets',
-                                        map = function()
-                                            surround.surround_region(
-                                                surround.patterns.word,
-                                                surround.charpairs.square_brackets
-                                            )
-                                        end,
+                                    W = {
+                                        desc = 'to inner WORD',
+                                        map = {
+                                            ['('] = {
+                                                desc = 'parentheses',
+                                                map = function()
+                                                    surround.surround_region(
+                                                        surround.patterns.WORD,
+                                                        surround.charpairs.parentheses
+                                                    )
+                                                end,
+                                            },
+                                            ['['] = {
+                                                desc = 'square brackets',
+                                                map = function()
+                                                    surround.surround_region(
+                                                        surround.patterns.WORD,
+                                                        surround.charpairs.square_brackets
+                                                    )
+                                                end,
+                                            },
+                                            ['{'] = {
+                                                desc = 'curly braces',
+                                                map = function()
+                                                    surround.surround_region(
+                                                        surround.patterns.WORD,
+                                                        surround.charpairs.curly_braces
+                                                    )
+                                                end,
+                                            },
+                                            ['<'] = {
+                                                desc = 'angle brackets',
+                                                map = function()
+                                                    surround.surround_region(
+                                                        surround.patterns.WORD,
+                                                        surround.charpairs.angle_brackets
+                                                    )
+                                                end,
+                                            }
+                                        },
                                     },
-                                    ['{'] = {
-                                        desc = 'curly braces',
-                                        map = function()
-                                            surround.surround_region(
-                                                surround.patterns.word,
-                                                surround.charpairs.curly_braces
-                                            )
-                                        end,
-                                    },
-                                    ['<'] = {
-                                        desc = 'angle brackets',
-                                        map = function()
-                                            surround.surround_region(
-                                                surround.patterns.word,
-                                                surround.charpairs.angle_brackets
-                                            )
-                                        end,
-                                    }
-                                },
-                            },
-                            iW = {
-                                desc = 'to inner WORD:',
-                                map = {
-                                    ['('] = {
-                                        desc = 'parentheses',
-                                        map = function()
-                                            surround.surround_region(
-                                                surround.patterns.WORD,
-                                                surround.charpairs.parentheses
-                                            )
-                                        end,
-                                    },
-                                    ['['] = {
-                                        desc = 'square brackets',
-                                        map = function()
-                                            surround.surround_region(
-                                                surround.patterns.WORD,
-                                                surround.charpairs.square_brackets
-                                            )
-                                        end,
-                                    },
-                                    ['{'] = {
-                                        desc = 'curly braces',
-                                        map = function()
-                                            surround.surround_region(
-                                                surround.patterns.WORD,
-                                                surround.charpairs.curly_braces
-                                            )
-                                        end,
-                                    },
-                                    ['<'] = {
-                                        desc = 'angle brackets',
-                                        map = function()
-                                            surround.surround_region(
-                                                surround.patterns.WORD,
-                                                surround.charpairs.angle_brackets
-                                            )
-                                        end,
-                                    }
                                 },
                             },
                         },
                     },
                     d = {
-                        desc = "delete",
+                        desc = 'delete',
                         map = {
                             ['('] = {
                                 desc = 'parentheses',
@@ -350,36 +357,36 @@ keymap.set('n', {
                 }
             },
             e = {
-                desc = 'quickfix list:',
+                desc = 'quickfix list',
                 map = {
                     l = {
                         desc = 'jump to next error',
-                        map = "<Cmd>cnext<CR>",
+                        map = '<Cmd>cnext<CR>',
                     },
                     h = {
                         desc = 'jump to previous error',
-                        map = "<Cmd>cprevious<CR>",
+                        map = '<Cmd>cprevious<CR>',
                     },
                     j = {
-                        desc = 'jump to the first error above',
-                        map = "<Cmd>cbelow<CR>",
+                        desc = 'jump to error above',
+                        map = '<Cmd>cbelow<CR>',
                     },
                     k = {
-                        desc = 'jump to the first error below',
-                        map = "<Cmd>cabove<CR>",
+                        desc = 'jump to error below',
+                        map = '<Cmd>cabove<CR>',
                     },
                     r = {
-                        desc = 'rewind the error list',
-                        map = "<Cmd>cfirst<CR>",
+                        desc = 'rewind error list',
+                        map = '<Cmd>cfirst<CR>',
                     },
-                    ["<Leader>"] = {
+                    ['<Leader>'] = {
                         desc = 'show error list',
-                        map = "<Cmd>clist<CR>",
+                        map = '<Cmd>clist<CR>',
                     },
                 },
             },
             x = {
-                desc = 'session:',
+                desc = 'session',
                 map = {
                     l = {
                         desc = 'load',
@@ -393,119 +400,243 @@ keymap.set('n', {
                         desc = 'delete',
                         map = session.prompt_delete_session,
                     },
+                    -- TODO: implement this
+                    -- r = {
+                        -- desc = 'rename',
+                        -- map = IDK
+                    -- },
                 },
             },
             r = {
-                desc = 'project:',
+                desc = 'project',
                 map = {
                     l = {
                         desc = 'load',
-                        map = project.prompt_load_project
+                        map = project.prompt_load_project,
                     },
                     s = {
                         desc = 'save',
-                        map = project.prompt_save_project
+                        map = project.prompt_save_project,
                     },
                     d = {
                         desc = 'delete',
-                        map = project.prompt_delete_project
+                        map = project.prompt_delete_project,
                     },
                     r = {
                         desc = 'rename',
-                        map = project.prompt_rename_project
+                        map = project.prompt_rename_project,
+                    }
+                },
+            },
+            c = {
+                desc = 'comment',
+                map = {
+                    [keymap.self] = {
+                        desc = 'toggle motion',
+                        operator = true,
+                        map = function()
+                            comment.toggle(
+                                0,
+                                vim.fn.line("'["),
+                                vim.fn.line("']")
+                            )
+                        end,
+                    },
+                    ['<Leader>'] = {
+                        desc = 'toggle line',
+                        map = function()
+                            local line = vim.fn.line('.')
+                            comment.toggle(0, line, line)
+                        end,
+                    },
+                    ['['] = {
+                        desc = 'uncomment',
+                        map = {
+                            [keymap.self] = {
+                                desc = 'motion',
+                                operator = true,
+                                map = function()
+                                    comment.uncomment(
+                                        0,
+                                        vim.fn.line("'["),
+                                        vim.fn.line("']")
+                                    )
+                                end
+                            },
+                            ['<Leader>'] = {
+                                desc = 'line',
+                                map = function()
+                                    local line = vim.fn.line('.')
+                                    comment.uncomment(0, line, line)
+                                end
+                            }
+                        },
+                    },
+                    [']'] = {
+                        desc = 'comment',
+                        map = {
+                            [keymap.self] = {
+                                desc = 'motion',
+                                operator = true,
+                                map = function()
+                                    comment.comment(
+                                        0,
+                                        vim.fn.line("'["),
+                                        vim.fn.line("']")
+                                    )
+                                end,
+                            },
+                            ['<Leader>'] = {
+                                desc = 'line',
+                                map = function()
+                                    local line = vim.fn.line('.')
+                                    comment.comment(0, line, line)
+                                end
+                            }
+                        },
                     }
                 },
             },
         }
     },
     g = {
-        desc = "Go",
+        desc = 'go to',
         map = {
             k = {
-                map = "gg",
-                desc = "Go to start of file."
+                desc = 'start of file',
+                map = 'gg',
             },
             j = {
-                map = "G",
-                desc = "Go to end of file."
+                desc = 'end of file',
+                map = 'G',
             },
             l = {
-                map = "$",
-                desc = "Go to end of line."
+                desc = 'end of line',
+                map = '$',
             },
             h = {
-                map = "0",
-                desc = "Go to start of line."
+                desc = 'start of line',
+                map = '0',
             },
             o = {
-                desc = "Go to a file using the :find command",
-                map = ":find "
+                desc = 'file using :find',
+                map = ':find '
             },
-            s = {
-                desc = "Go to the first character in the line.",
-                map = "^",
+            a = {
+                desc = 'first character in line',
+                map = '^',
+            },
+            z = {
+                desc = 'line below',
+                map = 'j',
             },
         },
     },
-    ["[b"] = {
-        desc = "Go to previous buffer",
-        map = "<Cmd>bprevious<CR>",
+    ['['] = {
+        desc = 'previous',
+        map = {
+            b = {
+                desc = 'buffer',
+                map = '<Cmd>bprevious<CR>',
+            },
+            t = {
+                desc = 'tab',
+                map = 'gT',
+            },
+        },
     },
-    ["]b"] = {
-        desc = "Go to next buffer",
-        map = "<Cmd>bnext<CR>",
+    [']'] = {
+        desc = 'next',
+        map = {
+            b = {
+                desc = 'buffer',
+                map = '<Cmd>bnext<CR>',
+            },
+            t = {
+                desc = 'tab',
+                map = 'gt',
+            },
+        },
     },
     dl = {
-        desc = "Delete line",
-        map = "dd",
-    },
-    ['[t'] = {
-        desc = 'Go to previous tab',
-        map = 'gT',
-    },
-    [']t'] = {
-        desc = 'Go to next tab',
-        map = 'gt',
+        desc = 'delete line',
+        map = 'dd',
     },
 })
 
-keymap.set("v", {
-    ["<Leader>y"] = {
-        desc = "Copy selection to clipboard",
-        map = "\"+y",
-    },
-    ["<Leader>p"] = {
-        desc = "Put from clipboard",
-        map = "\"+p",
-    },
-    ["<Leader>P"] = {
-        desc = "Put from clipboard without storing",
-        map = "\"+P",
+keymap.set('v', {
+    ['<Leader>'] = {
+        map = {
+            y = {
+                desc = 'copy selection to clipboard',
+                map = '"+y',
+            },
+            p = {
+                desc = 'put from clipboard',
+                map = '"+p',
+            },
+            P = {
+                desc = 'put from clipboard without storing',
+                map = '"+P',
+            },
+            c = {
+                desc = 'comment',
+                map = {
+                    ['<Leader>'] = {
+                        desc = 'toggle',
+                        map = function()
+                            comment.toggle(0, unpack({u.normalize_range(
+                                vim.fn.line('v'),
+                                vim.fn.line('.')
+                            )}))
+                        end,
+                    },
+                    ['['] = {
+                        desc = 'uncomment',
+                        map = function()
+                            comment.uncomment(0, unpack({u.normalize_range(
+                                vim.fn.line('v'),
+                                vim.fn.line('.')
+                            )}))
+                        end,
+                    },
+                    [']'] = {
+                        desc = 'comment',
+                        map = function()
+                            comment.comment(0, unpack({u.normalize_range(
+                                vim.fn.line('v'),
+                                vim.fn.line('.')
+                            )}))
+                        end,
+                    },
+                },
+            },
+        },
     },
     g = {
-        desc = "Go",
+        desc = 'go to',
         map = {
             k = {
-                map = "gg",
-                desc = "Go to start of file."
+                desc = 'start of file',
+                map = 'gg',
             },
             j = {
-                map = "G",
-                desc = "Go to end of file."
+                desc = 'end of file',
+                map = 'G',
             },
             l = {
-                map = "$",
-                desc = "Go to end of line."
+                desc = 'end of line',
+                map = '$',
             },
             h = {
-                map = "0",
-                desc = "Go to start of line."
+                desc = 'start of line',
+                map = '0',
             },
         },
     },
     s = {
-        desc = "Start search mode",
-        map = "/",
+        desc = 'start search mode',
+        map = '/',
     },
 })
 

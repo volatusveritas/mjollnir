@@ -4,3 +4,6 @@
 [submodule "pack/plug/start/leap.nvim"]
 	path = pack/plug/start/leap.nvim
 	url = https://github.com/ggandor/leap.nvim.git
+[submodule "pack/plug/start/fzf"]
+	path = pack/plug/start/fzf
+	url = https://github.com/junegunn/fzf.git
