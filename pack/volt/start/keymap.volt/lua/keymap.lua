@@ -11,7 +11,7 @@ local native = require('volt.native')
 --[[
     The keymap module is based on mapping grids.
 
-    A mapping grid is a table mapping strings (rhs) to mapping cells.
+    A mapping grid is a table mapping strings (lhs) to mapping cells.
 
     A mappping cell contains:
     * desc [string]: a description of the mapping or title of the mapping
@@ -98,7 +98,7 @@ end
 --- Linearizea a mapping grid to be made of individual keys
 -- @param mgrid (table) The mapping grid to source
 -- @return (table) The linearized mapping grid
-local function expand_mgrid(mode, mgrid)
+local function expand_mgrid(mode, buf, mgrid)
     local linear_tree = {}
 
     for key, mcell in pairs(mgrid) do
@@ -137,7 +137,14 @@ local function expand_mgrid(mode, mgrid)
             end
 
             chain_length = 1
-            local next_desc = catalogue.descriptions[mode]
+            local next_desc
+
+            if buf then
+                next_desc = catalogue.descriptions[mode].buffer[buf]
+            else
+                next_desc = catalogue.descriptions[mode].global
+            end
+
             for i = 1, components_len - 1 do
                 if next_desc[components[i]] == nil then
                     break
@@ -178,7 +185,7 @@ local function expand_mgrid(mode, mgrid)
             end
 
             if type(next_cell.map) == 'table' then
-                next_cell.map = expand_mgrid(mode, next_cell.map, path)
+                next_cell.map = expand_mgrid(mode, buf, next_cell.map)
             end
         end
     end
@@ -263,14 +270,23 @@ end
 -- @param mgrid (table) The mapping grid to use
 -- @param prefix (string) A prefix for the key tree
 function M.set(mode, mgrid, prefix)
-    local expanded_mgrid = expand_mgrid(mode, mgrid)
+    M.bset(mode, nil, mgrid, prefix)
+end
+
+-- TODO: document this
+function M.bset(mode, buf, mgrid, prefix)
+    local expanded_mgrid = expand_mgrid(mode, buf, mgrid)
     
     if expanded_mgrid == nil then
         return
     end
 
+    for _, mcell in pairs(expanded_mgrid) do
+        propagate_opts({ buffer = buf }, mcell)
+    end
+
     apply_mgrid(mode, expanded_mgrid, prefix)
-    catalogue.register_mgrid(mode, expanded_mgrid)
+    catalogue.register_mgrid(mode, buf, expanded_mgrid)
 end
 
 return M

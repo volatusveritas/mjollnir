@@ -26,43 +26,23 @@ vim.cmd('filetype plugin on')
 -- Activate indent plugins
 vim.cmd('filetype indent on')
 
--- Load colorscheme utilities
-require('volt.colorscheme').setup()
-
--- Load custom statusline
-require('volt.statusline').setup()
-
--- Setup terminal functionalities
-require('volt.terminal').setup()
-
--- Setup Netrw file explorer
-require('volt.explorer').setup()
-
--- Setup text movement features
-require('volt.move').setup()
-
--- Setup autosession features
-require('volt.session').setup()
-
--- Setup project management features
-require('volt.project').setup()
-
--- Setup custom tabline
-require('volt.tabline').setup()
-
--- Setup custom folds
-require('volt.fold').setup()
 ---- Override with treesitter folds
+vim.o.foldmethod = 'expr'
 vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
-
--- Load and set the custom colorscheme
-require('volt.theme').activate()
 
 -- Configure Treesitter
 ---- Use curl instead of git
 require('nvim-treesitter.install').prefer_git = false
 require('nvim-treesitter.configs').setup({
-    ensure_installed = { 'c', 'lua', 'vim', 'vimdoc', 'query', 'odin' },
+    ensure_installed = {
+        'c',
+        'lua',
+        'vim',
+        'vimdoc',
+        'bash',
+        'query',
+        'odin'
+    },
     highlight = { enable = true },
     incremental_selection = {
         enable = true,
@@ -78,18 +58,33 @@ require('nvim-treesitter.configs').setup({
 -- Setup leap.nvim
 require('leap').add_default_mappings()
 
-vim.o.foldmethod = 'expr'
-vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
-
 -- Imports
 local u = require('volt.u')
+local palette = require('palette')
+local color = palette.color
 
 local keymap = require('keymap')
 local comment = require('comment')
+local explorer = require('explorer')
 
-local surround = require('volt.surround')
-local session = require('volt.session')
-local project = require('volt.project')
+-- Color Palette
+color.cyan   = '#7AF3F3'
+color.green  = '#7AF39E'
+color.lime   = '#A2F37A'
+color.yellow = '#F1ED78'
+color.red    = '#F37A7A'
+color.purple = '#E2A6FF'
+color.orange = '#F3B27A'
+
+explorer.setup({
+    highlight_file = { fg = color.orange },
+    highlight_folder = { fg = color.purple, attr = { 'bold' } },
+    highlight_link = { fg = color.red, attr = { 'italic' } },
+    key_enter = '<CR>',
+    key_parent = '-',
+    key_back = 'q',
+    key_update = 'r',
+})
 
 -- Keymaps
 keymap.set('n', {
@@ -385,49 +380,6 @@ keymap.set('n', {
                     },
                 },
             },
-            x = {
-                desc = 'session',
-                map = {
-                    l = {
-                        desc = 'load',
-                        map = session.prompt_source_session,
-                    },
-                    s = {
-                        desc = 'save',
-                        map = session.prompt_save_session,
-                    },
-                    d = {
-                        desc = 'delete',
-                        map = session.prompt_delete_session,
-                    },
-                    -- TODO: implement this
-                    -- r = {
-                        -- desc = 'rename',
-                        -- map = IDK
-                    -- },
-                },
-            },
-            r = {
-                desc = 'project',
-                map = {
-                    l = {
-                        desc = 'load',
-                        map = project.prompt_load_project,
-                    },
-                    s = {
-                        desc = 'save',
-                        map = project.prompt_save_project,
-                    },
-                    d = {
-                        desc = 'delete',
-                        map = project.prompt_delete_project,
-                    },
-                    r = {
-                        desc = 'rename',
-                        map = project.prompt_rename_project,
-                    }
-                },
-            },
             c = {
                 desc = 'comment',
                 map = {
@@ -495,6 +447,23 @@ keymap.set('n', {
                             }
                         },
                     }
+                },
+            },
+            l = {
+                desc = 'explorer',
+                map = {
+                    ['<Leader>'] = {
+                        desc = 'start from working directory',
+                        map = explorer.start,
+                    },
+                    f = {
+                        desc = 'start from file',
+                        map = function()
+                            explorer.start(
+                                vim.fs.dirname(vim.fn.expand('%:p'))
+                            )
+                        end,
+                    },
                 },
             },
         }

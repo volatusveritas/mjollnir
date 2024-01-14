@@ -115,7 +115,7 @@ local function apply_lines(buf, r_start, r_end, modifier)
     ))
 end
 
-    ----------------------------- PUBLIC API ------------------------------
+  ------------------------------- PUBLIC API --------------------------------
 
 -- TODO: document this
 function M.comment(buf, r_start, r_end)
