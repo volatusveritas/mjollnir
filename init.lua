@@ -74,13 +74,13 @@ local comment = require('comment')
 local explorer = require('explorer')
 -------------------------------------------------------------------------------
 
----------------------------- Color Palette v1.0.0 -----------------------------
+---------------------------- Color Palette v1.0.1 -----------------------------
 color.purple = '#e2a6ff'
 color.red =    '#f37a7a'
 color.orange = '#ffbb80'
 color.green =  '#a2f37a'
 color.yellow = '#f5f57a'
-color.blue =   '#80b5ff'
+color.blue =   '#8cd9ff'
 color.cyan =   '#8cfffd'
 
 color.purple_dark = '#8f70cc'
@@ -88,7 +88,7 @@ color.red_dark =    '#b35061'
 color.orange_dark = '#cc7d5c'
 color.green_dark =  '#50a642'
 color.yellow_dark = '#c2b15b'
-color.blue_dark =   '#5a75c7'
+color.blue_dark =   '#5a87c7'
 color.cyan_dark =   '#5dbaab'
 
 color.dark1 = '#131515'
@@ -245,14 +245,14 @@ keymap.normal({ -- Movement
 keymap.normal({ -- Previous
     ['['] = {
         b = '<Cmd>bprevious<CR>',
-        t = '<Cmd>gT<CR>',
+        t = 'gT',
     },
 })
 
 keymap.normal({ -- Next
-    ['['] = {
+    [']'] = {
         b = '<Cmd>bnext<CR>',
-        t = '<Cmd>gt<CR>',
+        t = 'gt',
     },
 })
 
