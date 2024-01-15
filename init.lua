@@ -25,12 +25,6 @@ vim.g.maplocalleader = ','
 vim.cmd('filetype plugin on')
 vim.cmd('filetype indent on')
 vim.cmd('syntax on')
-
-vim.filetype.add({
-    extension = {
-        odin = 'odin'
-    },
-})
 -------------------------------------------------------------------------------
 
 ------------------------------ External Plugins -------------------------------
@@ -79,7 +73,7 @@ color.purple = '#e2a6ff'
 color.red =    '#f37a7a'
 color.orange = '#ffbb80'
 color.green =  '#a2f37a'
-color.yellow = '#f5f57a'
+color.yellow = '#f5f57a' -- TODO: change
 color.blue =   '#8cd9ff'
 color.cyan =   '#8cfffd'
 
@@ -110,23 +104,16 @@ palette.apply()
 -------------------------------------------------------------------------------
 
 ----------------------------------- Setups ------------------------------------
--------------------------------------------------------------------------------
-
-vim.filetype.add({
-    extension = {
-        odin = 'odin',
-    },
-})
-
 explorer.setup({
     highlight_file = { fg = color.orange },
     highlight_folder = { fg = color.purple, attr = { 'bold' } },
     highlight_link = { fg = color.red, attr = { 'italic' } },
-    key_enter = '<CR>',
+    key_enter  = '<CR>',
     key_parent = '-',
-    key_back = 'q',
+    key_close  = 'q',
     key_update = 'r',
 })
+-------------------------------------------------------------------------------
 
 ---------------------------------- Mappings -----------------------------------
 keymap.normal({ -- Window

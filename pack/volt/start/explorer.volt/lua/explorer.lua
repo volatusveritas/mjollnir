@@ -1,22 +1,21 @@
 local M = {}
 
--- Imports
+----------------------------------- Imports -----------------------------------
 local vlua = require('volt.vlua')
 local highlight = require('volt.highlight')
 local msg = require('volt.msg')
 
-local color = require('palette').color
 local keymap = require('keymap')
+-------------------------------------------------------------------------------
 
--- TODO: document this
-local bufs = {}
-local keys = {}
-local ns = vim.api.nvim_create_namespace('explorer')
+local bufs = nil
+local keys = nil
+local ns = nil
 
--- Defined later
+-- Forward declaration
 local update_buffer
 
----------------------------------- COMMANDS -----------------------------------
+---------------------------------- Commands -----------------------------------
 local function command_enter(buf)
     local line = vim.fn.line('.')
     local content = vim.fn.getline('.')
@@ -34,21 +33,15 @@ local function command_up(buf)
     update_buffer(buf, vim.fs.dirname(bufs[buf].path))
 end
 
-local function command_back(buf)
-    local path = bufs[buf].origin
-
-    if vim.fn.filereadable(path) == 1 then
-        vim.cmd.edit(path)
-    else
-        update_buffer(buf, path)
-    end
+local function command_close(buf)
+    vim.api.nvim_buf_delete(buf, {})
+    bufs[buf] = nil
 end
 
 local function command_update(buf)
 end
 -------------------------------------------------------------------------------
 
--- TODO: document this
 local function update_highlights(buf)
     for i, item_type in ipairs(bufs[buf].types) do
         local highlight_group
@@ -65,7 +58,6 @@ local function update_highlights(buf)
     end
 end
 
--- TODO: document this
 update_buffer = function(buf, path)
     local file_lines = vlua.efficient_array_make()
     local link_lines = vlua.efficient_array_make()
@@ -99,9 +91,7 @@ update_buffer = function(buf, path)
         typelist:insert('directory')
     end
 
-    local bmn = buflines:make_natural()
-    print(string.format('Settings buf[%d] to %s', buf, bmn))
-    vim.api.nvim_buf_set_lines(buf, 0, -1, true, bmn)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, true, buflines:make_natural())
     
     bufs[buf].path = path
     bufs[buf].types = typelist
@@ -109,29 +99,17 @@ update_buffer = function(buf, path)
     update_highlights(buf)
 end
 
--- TODO: document this
 local function setup_keybindings(buf)
-    keymap.bset('n', buf, {
-        [keys.enter] = {
-            desc = 'enter directory/file',
-            map = function() command_enter(buf) end,
-        },
-        [keys.parent] = {
-            desc = 'go up directory',
-            map = function() command_up(buf) end,
-        },
-        [keys.back] = {
-            desc = 'go back to exploration origin',
-            map = function() command_back(buf) end,
-        },
-        [keys.update] = {
-            desc = 'update explorer',
-            map = function() command_update(buf) end,
-        },
+    keymap.normal({
+        [keymap.opts] = { buffer = buf },
+
+        [keys.enter]  = function() command_enter(buf) end,
+        [keys.parent] = function() command_up(buf) end,
+        [keys.close]  = function() command_close(buf) end,
+        [keys.update] = function() command_update(buf) end,
     })
 end
 
--- TODO: document this
 local function setup_buffer(path)
     local buf = vim.api.nvim_create_buf(false, true)
 
@@ -140,39 +118,45 @@ local function setup_buffer(path)
         return nil
     end
 
+    vim.api.nvim_buf_set_name(buf, string.format('Explorer %d', buf))
+
     setup_keybindings(buf)
 
     return buf
 end
 
---------------------------------- PUBLIC API ----------------------------------
--- TODO: document this
+--------------------------------- Public API ----------------------------------
 function M.start(path)
     path = path or vim.fn.getcwd()
 
     local buf = setup_buffer(path)
 
-    bufs[buf] = { path = path, origin = vim.fn.expand('%:p') }
-
-    update_buffer(buf, path)
-
     if buf == nil then
         return
     end
 
+    bufs[buf] = { path = path, origin = vim.fn.expand('%:p') }
+
+    update_buffer(buf, path)
+
     vim.api.nvim_win_set_buf(0, buf)
 end
 
--- TODO: document this
 function M.setup(opts)
     highlight.set('ExplorerFile',   opts.highlight_file)
     highlight.set('ExplorerFolder', opts.highlight_folder)
     highlight.set('ExplorerLink',   opts.highlight_link)
 
-    keys.enter  = opts.key_enter
-    keys.parent = opts.key_parent
-    keys.back   = opts.key_back
-    keys.update = opts.key_update
+    bufs = {}
+
+    keys = {
+        enter  = opts.key_enter,
+        parent = opts.key_parent,
+        close  = opts.key_close,
+        update = opts.key_update,
+    }
+
+    ns = vim.api.nvim_create_namespace('explorer')
 end
 -------------------------------------------------------------------------------
 

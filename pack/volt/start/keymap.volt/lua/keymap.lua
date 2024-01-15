@@ -1,6 +1,5 @@
 local M = {}
 
--- TODO: document this file
 -- TODO: warn on keymap overrides
 
 M.opts = '____opts____'
