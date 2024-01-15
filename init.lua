@@ -14,14 +14,23 @@ vim.o.termguicolors = true
 vim.o.hlsearch = false
 vim.o.timeout = false
 vim.o.mouse = ''
-vim.opt.path:append('**')
 vim.o.showmode = false
+
+vim.opt.path:append('**')
+vim.opt.fillchars:append({ fold = ' ' })
 
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
 
 vim.cmd('filetype plugin on')
 vim.cmd('filetype indent on')
+vim.cmd('syntax on')
+
+vim.filetype.add({
+    extension = {
+        odin = 'odin'
+    },
+})
 -------------------------------------------------------------------------------
 
 ------------------------------ External Plugins -------------------------------
@@ -96,7 +105,18 @@ color.light1 = '#f1f1f1'
 color.light2 = '#d9d9d9'
 color.light3 = '#c2c4c4'
 color.light4 = '#a8adb3'
+
+palette.apply()
 -------------------------------------------------------------------------------
+
+----------------------------------- Setups ------------------------------------
+-------------------------------------------------------------------------------
+
+vim.filetype.add({
+    extension = {
+        odin = 'odin',
+    },
+})
 
 explorer.setup({
     highlight_file = { fg = color.orange },
@@ -236,7 +256,7 @@ keymap.normal({ -- Next
     },
 })
 
-keymap.visual({ -- Clipboard
+keymap.visual({ -- Clipboard (Visual)
     ['<Leader>'] = {
         y = '"+y',
         p = '"+p',
@@ -244,7 +264,7 @@ keymap.visual({ -- Clipboard
     },
 })
 
-keymap.visual({ -- Comment
+keymap.visual({ -- Comment (Visual)
     ['<Leader>c'] = {
         ['<Leader>'] = function()
             comment.toggle(0, unpack({u.normalize_range(
@@ -267,7 +287,7 @@ keymap.visual({ -- Comment
     },
 })
 
-keymap.visual({ -- Movement
+keymap.visual({ -- Movement (Visual)
     g = {
         k = 'gg',
         j = 'G',
@@ -276,7 +296,11 @@ keymap.visual({ -- Movement
     },
 })
 
-keymap.visual({ -- Search
+keymap.visual({ -- Search (Visual)
     s =  '/',
+})
+
+keymap.normal({ -- Editing
+    dl = 'dd',
 })
 -------------------------------------------------------------------------------

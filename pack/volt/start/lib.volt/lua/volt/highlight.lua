@@ -1,33 +1,30 @@
 local M = {}
 
-  ------------------------------- PUBLIC API --------------------------------
-
--- TODO: document this
+--------------------------------- PUBLIC API ----------------------------------
 function M.clear(group)
     vim.cmd(string.format('highlight clear %s', group))
 end
 
--- TODO: write this
--- TODO: document this
-function M.set(group, values)
+function M.set(group, color)
     local command = { 'highlight', group }
 
-    if values.attr then
+    if color.attr then
         table.insert(
             command,
-            string.format('gui=%s', table.concat(values.attr, ','))
+            string.format('gui=%s', table.concat(color.attr, ','))
         )
     end
 
-    if values.fg then
-        table.insert(command, string.format('guifg=%s', values.fg))
+    if color.fg then
+        table.insert(command, string.format('guifg=%s', color.fg))
     end
 
-    if values.bg then
-        table.insert(command, string.format('guibg=%s', values.bg))
+    if color.bg then
+        table.insert(command, string.format('guibg=%s', color.bg))
     end
 
     vim.cmd(table.concat(command, ' '))
 end
+-------------------------------------------------------------------------------
 
 return M
