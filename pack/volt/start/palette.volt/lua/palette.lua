@@ -11,6 +11,10 @@ local highlight = require('volt.highlight')
 
 M.color = {}
 
+function volt_foldtext()
+    return string.format('%s...', vim.fn.getline(vim.v.foldstart))
+end
+
 --------------------------------- PUBLIC API ----------------------------------
 function M.apply()
     highlight.set('Normal', { fg = M.color.light1, bg = M.color.dark1 })
@@ -26,7 +30,7 @@ function M.apply()
     highlight.set('Added', { fg = M.color.green })
     highlight.set('Changed', { fg = M.color.cyan })
     highlight.set('Removed', { fg = M.color.red })
-    highlight.set('Folded', { fg = M.color.purple, bg = 'NONE', attr = { 'bold' } })
+    highlight.set('Folded', { fg = M.color.purple, bg = M.color.grey2 })
     highlight.set('StatusLine', { fg = M.color.dark1, bg = M.color.purple_dark })
     highlight.set('StatusLineNC', { fg = M.color.light4, bg = M.color.dark4 })
     highlight.set('ColorColumn', { bg = M.color.dark4, attr = {'NONE'} })
@@ -37,6 +41,10 @@ function M.apply()
     highlight.set('LineNrBelow', { fg = M.color.grey4 })
     highlight.set('LineNr', { fg = M.color.light4 })
     highlight.set('CurSearch', { fg = M.color.dark1, bg = M.color.yellow })
+
+    highlight.set('@attribute.gdscript', { fg = M.color.red, attr = { 'bold' } })
+
+    vim.o.foldtext = 'v:lua.volt_foldtext()'
 end
 -------------------------------------------------------------------------------
 

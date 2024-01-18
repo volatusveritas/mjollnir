@@ -1,4 +1,4 @@
------------------------------------ Options -----------------------------------
+
 vim.o.shiftwidth = 4
 vim.o.colorcolumn = '80'
 vim.o.textwidth = 79
@@ -38,7 +38,8 @@ require('nvim-treesitter.configs').setup({
         'vimdoc',
         'bash',
         'query',
-        'odin'
+        'odin',
+        'gdscript',
     },
     highlight = { enable = true },
     incremental_selection = {
@@ -112,10 +113,25 @@ explorer.setup({
     key_parent = '-',
     key_close  = 'q',
     key_update = 'r',
+    key_apply  = 'z',
+    key_mark   = 'm',
 })
 -------------------------------------------------------------------------------
 
 ---------------------------------- Mappings -----------------------------------
+keymap.normal({ -- Neovim
+    ['<C-q>'] = function()
+        local choice = vim.fn.confirm(
+            'Are you sure you want to leave?',
+            '&Yes\n&No', 1
+        )
+
+        if choice == 1 then
+            vim.cmd('qall!')
+        end
+    end
+})
+
 keymap.normal({ -- Window
     w = {
         h = '<C-w>h',
@@ -129,6 +145,7 @@ keymap.normal({ -- Window
         t = '<C-w>t',
         x = '<C-w>x',
         ['<Leader>'] = {
+            q = '<Cmd>quit!<CR>',
             h = '<C-w>H',
             j = '<C-w>J',
             k = '<C-w>K',

@@ -1,5 +1,13 @@
 local M = {}
 
+-- TODO: mark selected lines if in Visual mode
+
+-- Concepts:
+-- - delete a line to remove an item
+-- - create a line to create an item
+-- - use the format old->new to move an item in place
+-- - mark for copying or moving
+
 ----------------------------------- Imports -----------------------------------
 local vlua = require('volt.vlua')
 local highlight = require('volt.highlight')
@@ -8,106 +16,200 @@ local msg = require('volt.msg')
 local keymap = require('keymap')
 -------------------------------------------------------------------------------
 
+-- :: map[bufnr(number)]{ path: string, files, folders, links: string[] }
 local bufs = nil
+-- :: map[path(string)]extmark_id(number)
+local marked = nil
+-- :: map[string]string
 local keys = nil
+-- :: namespace_id(number)
 local ns = nil
 
--- Forward declaration
-local update_buffer
-
----------------------------------- Commands -----------------------------------
-local function command_enter(buf)
-    local line = vim.fn.line('.')
-    local content = vim.fn.getline('.')
-
-    if bufs[buf].types[line] == 'directory' then
-        update_buffer(buf,
-            vim.fs.joinpath(bufs[buf].path, vim.fs.normalize(content))
-        )
-    else
-        vim.cmd.edit(vim.fs.joinpath(bufs[buf].path, content))
-    end
+local function child_path(buf, child)
+    return vim.fs.normalize(vim.fs.joinpath(bufs[buf].path, child))
 end
 
-local function command_up(buf)
-    update_buffer(buf, vim.fs.dirname(bufs[buf].path))
+local function item_to_directory(item)
+    return string.format('%s/', item)
 end
 
-local function command_close(buf)
-    vim.api.nvim_buf_delete(buf, {})
-    bufs[buf] = nil
+local function item_is_directory(item)
+    return item:find('^[^%s]+/$') ~= nil
 end
 
-local function command_update(buf)
-end
--------------------------------------------------------------------------------
-
-local function update_highlights(buf)
-    for i, item_type in ipairs(bufs[buf].types) do
-        local highlight_group
-
-        if item_type == 'directory' then
-            highlight_group = 'ExplorerFolder'
-        elseif item_type == 'link' then
-            highlight_group = 'ExplorerLink'
-        else
-            highlight_group = 'ExplorerFile'
-        end
-
-        vim.api.nvim_buf_add_highlight(buf, ns, highlight_group, i - 1, 0, -1)
-    end
+local function item_is_link(item)
+    return item:find('^[^%s]+ >>$') ~= nil
 end
 
-update_buffer = function(buf, path)
+local function item_to_link(item)
+    return string.format('%s >>', item)
+end
+
+local function explore(buf, path)
     local file_lines = vlua.efficient_array_make()
     local link_lines = vlua.efficient_array_make()
     local folder_lines = vlua.efficient_array_make()
 
     for name, item_type in vim.fs.dir(path) do
         if item_type == 'directory' then
-            folder_lines:insert(string.format('%s/', name))
+            folder_lines:insert(item_to_directory(name))
         elseif item_type == 'link' then
-            link_lines:insert(string.format('%s >>', name))
+            link_lines:insert(item_to_link(name))
         else
             file_lines:insert(name)
         end
     end
 
     local buflines = vlua.efficient_array_make()
-    local typelist = vlua.efficient_array_make()
 
     for i = 1, file_lines.length do
         buflines:insert(file_lines[i])
-        typelist:insert('file')
     end
 
     for i = 1, link_lines.length do
         buflines:insert(link_lines[i])
-        typelist:insert('link')
     end
 
     for i = 1, folder_lines.length do
         buflines:insert(folder_lines[i])
-        typelist:insert('directory')
     end
 
     vim.api.nvim_buf_set_lines(buf, 0, -1, true, buflines:make_natural())
     
-    bufs[buf].path = path
-    bufs[buf].types = typelist
-
-    update_highlights(buf)
+    bufs[buf] = {
+        path = path,
+        files = file_lines,
+        folders = folder_lines,
+        links = link_lines,
+    }
 end
 
-local function setup_keybindings(buf)
-    keymap.normal({
-        [keymap.opts] = { buffer = buf },
+local function apply_updates(buf)
+    local new_files = vlua.efficient_array_make()
+    local new_folders = vlua.efficient_array_make()
+    local new_links = vlua.efficient_array_make()
+    
+    local new_targets = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
 
-        [keys.enter]  = function() command_enter(buf) end,
-        [keys.parent] = function() command_up(buf) end,
-        [keys.close]  = function() command_close(buf) end,
-        [keys.update] = function() command_update(buf) end,
-    })
+    for _, line in ipairs(new_targets) do
+        if item_is_link(line) then
+            new_links:insert(line)
+            local new_link = true
+            for _, link in ipairs(bufs[buf].links) do
+                if link == line then
+                    new_link = false
+                    break
+                end
+            end
+
+            if new_link then
+                msg.msg('Link created')
+            end
+        elseif item_is_directory(line) then
+            new_folders:insert(line)
+            local new_folder = true
+            for _, folder in ipairs(bufs[buf].folders) do
+                if folder == line then
+                    new_folder = false
+                    break
+                end
+            end
+
+            if new_folder then
+                vim.fn.mkdir(line, 'p')
+                msg.msg('Folder created')
+            end
+        else
+            new_files:insert(line)
+            local new_file = true 
+            for _, file in ipairs(bufs[buf].files) do
+                if file == line then
+                    new_file = false
+                    break
+                end
+            end
+
+            if new_file then
+                local file, err = io.open(line, 'w')
+
+                if file == nil then
+                    msg.err('Failed to create file %s: %s', line)
+                    return
+                end
+
+                file:write()
+                file:close()
+
+                msg.msg('File created')
+            end
+        end
+    end
+
+    for _, file in ipairs(bufs[buf].files) do
+        local removed = true
+
+        for _, new_file in ipairs(new_files) do
+            if new_file == file then
+                removed = false
+                break
+            end
+        end
+
+        if removed then
+            local path = child_path(buf, file)
+
+            if vim.fn.delete(path) == -1 then
+                msg.err('Failed to remove file %s: %s', path, err)
+                return
+            end
+
+            msg.msg('File %s removed', path)
+        end
+    end
+
+    for _, folder in ipairs(bufs[buf].folders) do
+        local removed = true
+
+        for _, new_folder in ipairs(new_folders) do
+            if new_folder == folder then
+                removed = false
+                break
+            end
+        end
+
+        if removed then
+            local path = child_path(buf, folder)
+
+            if vim.fn.delete(path, 'rf') == -1 then
+                msg.err('Failed to remove folder %s: %s', path)
+                return
+            end
+
+            msg.msg('Folder %s removed', path)
+        end
+    end
+
+    for _, link in ipairs(bufs[buf].links) do
+        local removed = true
+
+        for _, new_link in ipairs(new_links) do
+            if new_link == link then
+                removed = false
+                break
+            end
+        end
+
+        if removed then
+            local path = child_path(buf, folder)
+
+            if vim.fn.delete(path) == -1 then
+                msg.err('Failed to remove link %s: %s', path)
+                return
+            end
+
+            msg.msg('Link %s removed', path)
+        end
+    end
 end
 
 local function setup_buffer(path)
@@ -120,7 +222,54 @@ local function setup_buffer(path)
 
     vim.api.nvim_buf_set_name(buf, string.format('Explorer %d', buf))
 
-    setup_keybindings(buf)
+    vim.bo[buf].filetype = 'explorer'
+
+    keymap.normal({
+        [keymap.opts] = { buffer = buf },
+
+        [keys.enter]  = function()
+            local content = vim.fn.getline('.')
+            local full_path = child_path(buf, content)
+
+            if item_is_directory(content) then
+                explore(buf, full_path)
+            else
+                if vim.fn.isdirectory(full_path) == 1 then
+                    explore(buf, full_path)
+                else
+                    vim.cmd.edit(full_path)
+                end
+            end
+        end,
+        [keys.parent] = function()
+            explore(buf, vim.fs.dirname(bufs[buf].path))
+        end,
+        [keys.close]  = function()
+            vim.api.nvim_buf_delete(buf, {})
+            bufs[buf] = nil
+        end,
+        [keys.update] = function() explore(buf, bufs[buf].path) end,
+        [keys.apply] = function() apply_updates(buf) end,
+        [keys.mark] = function()
+            local lnum = vim.fn.line('.')
+            local line = vim.fn.getline('.')
+            local path = child_path(buf, line)
+
+            if marked[path] then
+                vim.api.nvim_buf_del_extmark(buf, ns, marked[path])
+                marked[path] = nil
+            else
+                marked[path] = vim.api.nvim_buf_set_extmark(
+                    buf, ns, lnum - 1, 0, {
+                        virt_text = { { '(Marked)', 'Comment' } },
+                        virt_text_pos = 'eol',
+                    }
+                )
+            end
+        end,
+    })
+
+    bufs[buf] = { path = path, files = {}, folders = {}, links = {} }
 
     return buf
 end
@@ -135,9 +284,7 @@ function M.start(path)
         return
     end
 
-    bufs[buf] = { path = path, origin = vim.fn.expand('%:p') }
-
-    update_buffer(buf, path)
+    explore(buf, path)
 
     vim.api.nvim_win_set_buf(0, buf)
 end
@@ -148,12 +295,15 @@ function M.setup(opts)
     highlight.set('ExplorerLink',   opts.highlight_link)
 
     bufs = {}
+    marked = {}
 
     keys = {
         enter  = opts.key_enter,
         parent = opts.key_parent,
         close  = opts.key_close,
         update = opts.key_update,
+        apply  = opts.key_apply,
+        mark   = opts.key_mark,
     }
 
     ns = vim.api.nvim_create_namespace('explorer')
