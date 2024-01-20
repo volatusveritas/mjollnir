@@ -37,12 +37,16 @@ local function item_is_directory(item)
     return item:find('^[^%s]+/$') ~= nil
 end
 
+local function item_to_link(item)
+    return string.format('%s >>', item)
+end
+
 local function item_is_link(item)
     return item:find('^[^%s]+ >>$') ~= nil
 end
 
-local function item_to_link(item)
-    return string.format('%s >>', item)
+local function item_as_move_order(item)
+    return item:match('([^%s]+)%s*->%s*([^%s]+)')
 end
 
 local function explore(buf, path)
@@ -84,6 +88,12 @@ local function explore(buf, path)
     }
 end
 
+local function update_all_buffers()
+    for bufnr, buf in pairs(bufs) do
+        explore(bufnr, buf.path)
+    end
+end
+
 local function apply_updates(buf)
     local new_files = vlua.efficient_array_make()
     local new_folders = vlua.efficient_array_make()
@@ -92,7 +102,32 @@ local function apply_updates(buf)
     local new_targets = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
 
     for _, line in ipairs(new_targets) do
-        if item_is_link(line) then
+        local from, to = item_as_move_order(line)
+
+        if from ~= nil then
+            if item_is_link(from) then
+                -- TODO: move link
+                new_links:insert(from)
+                msg.msg('Moving links is not available yet.')
+            elseif item_is_directory(from) then
+                new_folders:insert(from)
+                -- TODO: move folder
+                msg.msg('Moving folders is not available yet.')
+            else
+                if vim.fn.filereadable(to) == 1 then
+                    msg.err('Failed to move file %s to %s: target file already exists.', from, to)
+                    return
+                end
+
+                if vim.fn.rename(from, to) ~= 0 then
+                    msg.err('Failed to move file %s to %s', from, to)
+                    return
+                end
+
+                msg.msg('File %s moved to %s', from, to)
+                new_files:insert(from, to)
+            end
+        elseif item_is_link(line) then
             new_links:insert(line)
             local new_link = true
             for _, link in ipairs(bufs[buf].links) do
@@ -103,7 +138,9 @@ local function apply_updates(buf)
             end
 
             if new_link then
-                msg.msg('Link created')
+                msg.msg('Creating links is not available yet.')
+                -- TODO: check if link exists, error if true
+                -- TODO: msg.msg('Link created')
             end
         elseif item_is_directory(line) then
             new_folders:insert(line)
@@ -116,8 +153,12 @@ local function apply_updates(buf)
             end
 
             if new_folder then
-                vim.fn.mkdir(line, 'p')
-                msg.msg('Folder created')
+                local path = child_path(buf, line)
+                if vim.fn.mkdir(path, 'p') == 0 then
+                    msg.err('Failed to create folder %s', path)
+                else
+                    msg.msg('Folder %s created', path)
+                end
             end
         else
             new_files:insert(line)
@@ -130,17 +171,24 @@ local function apply_updates(buf)
             end
 
             if new_file then
-                local file, err = io.open(line, 'w')
+                if vim.fn.filereadable(line) == 1 then
+                    msg.err('Failed to create file %s: file already exists', line)
+                    return
+                end
+
+                local path = child_path(buf, line)
+                local file, err = io.open(path, 'w')
 
                 if file == nil then
-                    msg.err('Failed to create file %s: %s', line)
+                    msg.err('Failed to create file %s: %s', path)
+                    file:close()
                     return
                 end
 
                 file:write()
                 file:close()
 
-                msg.msg('File created')
+                msg.msg('File %s created', path)
             end
         end
     end
@@ -210,6 +258,8 @@ local function apply_updates(buf)
             msg.msg('Link %s removed', path)
         end
     end
+
+    update_all_buffers()
 end
 
 local function setup_buffer(path)
@@ -304,6 +354,8 @@ function M.setup(opts)
         update = opts.key_update,
         apply  = opts.key_apply,
         mark   = opts.key_mark,
+        copy   = opts.key_copy,
+        move   = opts.key_move,
     }
 
     ns = vim.api.nvim_create_namespace('explorer')

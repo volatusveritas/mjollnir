@@ -74,7 +74,7 @@ color.purple = '#e2a6ff'
 color.red =    '#f37a7a'
 color.orange = '#ffbb80'
 color.green =  '#a2f37a'
-color.yellow = '#f5f57a' -- TODO: change
+color.yellow = '#f5f57a'
 color.blue =   '#8cd9ff'
 color.cyan =   '#8cfffd'
 
@@ -115,6 +115,8 @@ explorer.setup({
     key_update = 'r',
     key_apply  = 'z',
     key_mark   = 'm',
+    key_copy   = '<LocalLeader>c',
+    key_move   = '<LocalLeader>m',
 })
 -------------------------------------------------------------------------------
 
