@@ -41,8 +41,10 @@ function M.apply()
     highlight.set('LineNrBelow', { fg = M.color.grey4 })
     highlight.set('LineNr', { fg = M.color.light4 })
     highlight.set('CurSearch', { fg = M.color.dark1, bg = M.color.yellow })
-
-    highlight.set('@attribute.gdscript', { fg = M.color.red, attr = { 'bold' } })
+    highlight.set('NormalFloat', { fg = M.color.light1, bg = M.color.dark1 })
+    highlight.set('FloatBorder', { fg = M.color.purple, bg = M.color.dark1 })
+    highlight.set('FloatTitle', { fg = M.color.purple, attr = { 'bold' } })
+    highlight.set('FloatFooter', { fg = M.color.purple })
 
     vim.o.foldtext = 'v:lua.volt_foldtext()'
 end

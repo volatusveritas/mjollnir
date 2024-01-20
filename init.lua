@@ -1,4 +1,4 @@
-
+----------------------------------- Options -----------------------------------
 vim.o.shiftwidth = 4
 vim.o.colorcolumn = '80'
 vim.o.textwidth = 79
@@ -61,12 +61,13 @@ require('leap').add_default_mappings()
 
 ----------------------------------- Imports -----------------------------------
 local u = require('volt.u')
-local palette = require('palette')
-local color = palette.color
+local window = require('volt.window')
 
 local keymap = require('keymap')
 local comment = require('comment')
 local explorer = require('explorer')
+local palette = require('palette')
+local color = palette.color
 -------------------------------------------------------------------------------
 
 ---------------------------- Color Palette v1.0.1 -----------------------------
@@ -308,5 +309,14 @@ keymap.visual({ -- Search (Visual)
 
 keymap.normal({ -- Editing
     dl = 'dd',
+})
+
+keymap.normal({ -- Debug
+    ['<Leader><LocalLeader>w'] = function()
+        local buf = vim.api.nvim_create_buf(false, true)
+        window.open_centered(buf, true, {
+            title = ' Window Title ',
+        })
+    end
 })
 -------------------------------------------------------------------------------

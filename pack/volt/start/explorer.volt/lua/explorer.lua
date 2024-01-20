@@ -119,12 +119,15 @@ local function apply_updates(buf)
                     return
                 end
 
-                if vim.fn.rename(from, to) ~= 0 then
-                    msg.err('Failed to move file %s to %s', from, to)
+                local from_path = child_path(buf, from)
+                local to_path = child_path(buf, to)
+
+                if vim.fn.rename(from_path, to_path) ~= 0 then
+                    msg.err('Failed to move file %s to %s', from_path, to_path)
                     return
                 end
 
-                msg.msg('File %s moved to %s', from, to)
+                msg.msg('File %s moved to %s', from_path, to_path)
                 new_files:insert(from, to)
             end
         elseif item_is_link(line) then
