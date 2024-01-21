@@ -314,7 +314,7 @@ keymap.normal({ -- Editing
 keymap.normal({ -- Debug
     ['<Leader><LocalLeader>w'] = function()
         local buf = vim.api.nvim_create_buf(false, true)
-        window.open_centered(buf, true, {
+        window.open_right(buf, true, {
             title = ' Window Title ',
         })
     end
