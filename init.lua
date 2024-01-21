@@ -15,6 +15,7 @@ vim.o.hlsearch = false
 vim.o.timeout = false
 vim.o.mouse = ''
 vim.o.showmode = false
+vim.o.cmdheight = 0
 
 vim.opt.path:append('**')
 vim.opt.fillchars:append({ fold = ' ' })

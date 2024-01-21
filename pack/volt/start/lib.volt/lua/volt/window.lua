@@ -64,15 +64,17 @@ local function get_border_height(border)
     if type(border) == 'table' then
         local height = 0
 
+        local element_amount = #border
+
         for i = 0, 2 do
-            if border[i % divisor] ~= '' then
+            if border[i % element_amount] ~= '' then
                 height = height + 1
                 break
             end
         end
 
         for i = 4, 6 do
-            if border[i % divisor] ~= '' then
+            if border[i % element_amount] ~= '' then
                 height = height + 1
                 break
             end

@@ -18,8 +18,6 @@ local keymap = require('keymap')
 
 -- :: map[bufnr(number)]{ path: string, files, folders, links: string[] }
 local bufs = nil
--- :: map[path(string)]extmark_id(number)
-local marked = nil
 -- :: map[string]string
 local keys = nil
 -- :: namespace_id(number)
@@ -303,23 +301,6 @@ local function setup_buffer(path)
         end,
         [keys.update] = function() explore(buf, bufs[buf].path) end,
         [keys.apply] = function() apply_updates(buf) end,
-        [keys.mark] = function()
-            local lnum = vim.fn.line('.')
-            local line = vim.fn.getline('.')
-            local path = child_path(buf, line)
-
-            if marked[path] then
-                vim.api.nvim_buf_del_extmark(buf, ns, marked[path])
-                marked[path] = nil
-            else
-                marked[path] = vim.api.nvim_buf_set_extmark(
-                    buf, ns, lnum - 1, 0, {
-                        virt_text = { { '(Marked)', 'Comment' } },
-                        virt_text_pos = 'eol',
-                    }
-                )
-            end
-        end,
     })
 
     bufs[buf] = { path = path, files = {}, folders = {}, links = {} }
@@ -348,7 +329,6 @@ function M.setup(opts)
     highlight.set('ExplorerLink',   opts.highlight_link)
 
     bufs = {}
-    marked = {}
 
     keys = {
         enter  = opts.key_enter,
