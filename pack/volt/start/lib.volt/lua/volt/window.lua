@@ -1,18 +1,8 @@
 local M = {}
 
 ----------------------------------- Imports -----------------------------------
-local ui = require('ui')
+local vnvim = require('volt.vnvim')
 -------------------------------------------------------------------------------
-
-local function normalize_dimension(value, basis, default)
-    value = value or default
-
-    if value < 1 then
-        value = value * basis
-    end
-
-    return math.floor(value)
-end
 
 local function get_border_height(border)
     if type(border) == 'table' then
@@ -40,6 +30,16 @@ local function get_border_height(border)
     else
         return 2
     end
+end
+
+local function normalize_dimension(value, basis, default)
+    value = value or default
+
+    if value < 1 then
+        value = value * basis
+    end
+
+    return math.floor(value)
 end
 
 --------------------------------- Public API ----------------------------------
@@ -82,8 +82,10 @@ function M.open_rect(buf, enter, x, y, width, height, settings)
 
     return vim.api.nvim_open_win(buf, enter, {
         relative = 'editor',
-        col = x + (settings.ox or 0),
-        row = y + (settings.oy or 0),
+        -- col = x + (settings.ox or 0),
+        -- row = y + (settings.oy or 0),
+        col = x + normalize_dimension(settings.ox, vim.o.columns, 0),
+        row = y + normalize_dimension(settings.oy, vnvim.get_screen_height(), 0),
         width = width,
         height = height,
         focusable = settings.focusable,
@@ -101,88 +103,88 @@ function M.open_rect(buf, enter, x, y, width, height, settings)
 end
 
 function M.open_centered(buf, enter, settings)
-    local screen_height = ui.get_screen_height() - get_border_height(settings.border)
+    local screen_height = vnvim.get_screen_height() - get_border_height(settings.border)
 
     local width = normalize_dimension(settings.width, vim.o.columns, 0.5)
     local height = normalize_dimension(settings.height, screen_height, 0.5)
     local x = (vim.o.columns - width) / 2.0
     local y = (screen_height - height) / 2.0
 
-    M.open_rect(buf, enter, x, y, width, height, settings)
+    return M.open_rect(buf, enter, x, y, width, height, settings)
 end
 
 function M.open_bottom_left(buf, enter, settings)
-    local screen_height = ui.get_screen_height() - get_border_height(settings.border)
+    local screen_height = vnvim.get_screen_height() - get_border_height(settings.border)
 
     local width = normalize_dimension(settings.width, vim.o.columns, 0.5)
     local height = normalize_dimension(settings.height, screen_height, 0.5)
     local y = screen_height - height
 
-    M.open_rect(buf, enter, 0, y, width, height, settings)
+    return M.open_rect(buf, enter, 0, y, width, height, settings)
 end
 
 function M.open_bottom_right(buf, enter, settings)
-    local screen_height = ui.get_screen_height() - get_border_height(settings.border)
+    local screen_height = vnvim.get_screen_height() - get_border_height(settings.border)
 
     local width = normalize_dimension(settings.width, vim.o.columns, 0.5)
     local height = normalize_dimension(settings.height, screen_height, 0.5)
     local x = vim.o.columns - width
     local y = screen_height - height
 
-    M.open_rect(buf, enter, x, y, width, height, settings)
+    return M.open_rect(buf, enter, x, y, width, height, settings)
 end
 
 function M.open_top_left(buf, enter, settings)
     local width = normalize_dimension(settings.width, vim.o.columns, 0.5)
-    local height = normalize_dimension(settings.height, ui.get_screen_height(), 0.5)
+    local height = normalize_dimension(settings.height, vnvim.get_screen_height(), 0.5)
 
-    M.open_rect(buf, enter, 0, 0, width, height, settings)
+    return M.open_rect(buf, enter, 0, 0, width, height, settings)
 end
 
 function M.open_top_right(buf, enter, settings)
     local width = normalize_dimension(settings.width, vim.o.columns, 0.5)
-    local height = normalize_dimension(settings.height, ui.get_screen_height(), 0.5)
+    local height = normalize_dimension(settings.height, vnvim.get_screen_height(), 0.5)
     local x = vim.o.columns - width
 
-    M.open_rect(buf, enter, x, 0, width, height, settings)
+    return M.open_rect(buf, enter, x, 0, width, height, settings)
 end
 
 function M.open_left(buf, enter, settings)
     settings.border = settings.border or M.border_right_only
 
     local width = normalize_dimension(settings.width, vim.o.columns, 0.375)
-    local height = ui.get_screen_height() - get_border_height(settings.border)
+    local height = vnvim.get_screen_height() - get_border_height(settings.border)
 
-    M.open_rect(buf, enter, 0, 0, width, height, settings)
+    return M.open_rect(buf, enter, 0, 0, width, height, settings)
 end
 
 function M.open_right(buf, enter, settings)
     settings.border = settings.border or M.border_left_only
 
     local width = normalize_dimension(settings.width, vim.o.columns, 0.375)
-    local height = ui.get_screen_height() - get_border_height(settings.border)
+    local height = vnvim.get_screen_height() - get_border_height(settings.border)
     local x = vim.o.columns - width
 
-    M.open_rect(buf, enter, x, 0, width, height, settings)
+    return M.open_rect(buf, enter, x, 0, width, height, settings)
 end
 
 function M.open_top(buf, enter, settings)
     settings.border = settings.border or M.border_bottom_only
 
     local width = vim.o.columns
-    local height = normalize_dimension(settings.height, ui.get_screen_height(), 0.375)
+    local height = normalize_dimension(settings.height, vnvim.get_screen_height(), 0.375)
 
-    M.open_rect(buf, enter, 0, 0, width, height, settings)
+    return M.open_rect(buf, enter, 0, 0, width, height, settings)
 end
 
 function M.open_bottom(buf, enter, settings)
     settings.border = settings.border or M.border_top_only
 
     local width = vim.o.columns
-    local height = normalize_dimension(settings.height, ui.get_screen_height(), 0.375)
-    local y = ui.get_screen_height() - height - get_border_height(settings.border)
+    local height = normalize_dimension(settings.height, vnvim.get_screen_height(), 0.375)
+    local y = vnvim.get_screen_height() - height - get_border_height(settings.border)
 
-    M.open_rect(buf, enter, 0, y, width, height, settings)
+    return M.open_rect(buf, enter, 0, y, width, height, settings)
 end
 -------------------------------------------------------------------------------
 

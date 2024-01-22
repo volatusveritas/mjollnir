@@ -15,7 +15,9 @@ vim.o.hlsearch = false
 vim.o.timeout = false
 vim.o.mouse = ''
 vim.o.showmode = false
+
 vim.o.cmdheight = 0
+vim.o.laststatus = 0
 
 vim.opt.path:append('**')
 vim.opt.fillchars:append({ fold = ' ' })
@@ -64,6 +66,7 @@ require('leap').add_default_mappings()
 local u = require('volt.u')
 local window = require('volt.window')
 
+local lens = require('lens')
 local keymap = require('keymap')
 local comment = require('comment')
 local explorer = require('explorer')
@@ -134,6 +137,10 @@ keymap.normal({ -- Neovim
             vim.cmd('qall!')
         end
     end
+})
+
+keymap.normal({ -- lens.volt
+    [':'] = lens.cmdline
 })
 
 keymap.normal({ -- Window

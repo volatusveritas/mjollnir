@@ -7,3 +7,9 @@
 [submodule "pack/plug/start/fzf"]
 	path = pack/plug/start/fzf
 	url = https://github.com/junegunn/fzf.git
+[submodule "pack/plug/start/noice.nvim"]
+	path = pack/plug/start/noice.nvim
+	url = https://github.com/folke/noice.nvim.git
+[submodule "pack/plug/start/nui.nvim"]
+	path = pack/plug/start/nui.nvim
+	url = https://github.com/MunifTanjim/nui.nvim.git
