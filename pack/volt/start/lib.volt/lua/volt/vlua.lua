@@ -51,9 +51,4 @@ Efficient_Array_Metatable.__index = Efficient_Array_Metatable
 
 M.efficient_array_make = efficient_array_make
 
--- local x = vlua.make_efficient_array()
--- x:insert(some_element)
--- y:insert(some_element)
--- print(y.length)
-
 return M

@@ -48,7 +48,7 @@ function M.input(prompt, window_settings, callback)
         style = 'minimal',
         border = 'none',
         width = vim.api.nvim_win_get_width(border_win) - 2,
-        ox = 2,
+        -- ox = 2,
     })
 
     local win = window.open_centered(buf, true, window_opts)
