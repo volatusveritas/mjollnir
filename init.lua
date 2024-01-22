@@ -15,9 +15,15 @@ vim.o.hlsearch = false
 vim.o.timeout = false
 vim.o.mouse = ''
 vim.o.showmode = false
-
 vim.o.cmdheight = 0
 vim.o.laststatus = 0
+
+vim.o.shell = "nu"
+vim.o.shellcmdflag = "-c"
+vim.o.shellslash = true
+vim.o.shellquote = ""
+vim.o.shellxquote = ""
+vim.o.shellpipe = ""
 
 vim.opt.path:append('**')
 vim.opt.fillchars:append({ fold = ' ' })
@@ -71,6 +77,7 @@ local keymap = require('keymap')
 local comment = require('comment')
 local explorer = require('explorer')
 local palette = require('palette')
+local terminal = require('terminal')
 local color = palette.color
 -------------------------------------------------------------------------------
 
@@ -123,6 +130,13 @@ explorer.setup({
     key_copy   = '<LocalLeader>c',
     key_move   = '<LocalLeader>m',
 })
+
+terminal.setup({
+    key_special = '<C-s>',
+    key_leave = '<Esc>',
+    key_close = 'q',
+    key_kill = '<C-q>',
+})
 -------------------------------------------------------------------------------
 
 ---------------------------------- Mappings -----------------------------------
@@ -141,6 +155,10 @@ keymap.normal({ -- Neovim
 
 keymap.normal({ -- lens.volt
     [':'] = lens.cmdline
+})
+
+keymap.normal({ -- terminal.volt
+    ['<Leader>t'] = terminal.open_floating
 })
 
 keymap.normal({ -- Window

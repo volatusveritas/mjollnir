@@ -17,7 +17,8 @@ end
 
 --------------------------------- PUBLIC API ----------------------------------
 function M.apply()
-    highlight.set('Normal', { fg = M.color.light1, bg = M.color.dark1 })
+    -- highlight.set('Normal', { fg = M.color.light1, bg = M.color.dark1 })
+    highlight.set('Normal', { fg = M.color.light1, bg = 'NONE' })
     highlight.set('Comment', { fg = M.color.light4 })
     highlight.set('Identifier', { fg = M.color.light1 })
     highlight.set('Constant', { fg = M.color.red })

@@ -85,9 +85,9 @@ local function set(mode, grid, root)
     end
 end
 
-M.normal =   function(grid) set('n', grid) end
-M.visual =   function(grid) set('v', grid) end
+M.normal   = function(grid) set('n', grid) end
+M.visual   = function(grid) set('v', grid) end
 M.terminal = function(grid) set('t', grid) end
-M.insert =   function(grid) set('i', grid) end
+M.insert   = function(grid) set('i', grid) end
 
 return M

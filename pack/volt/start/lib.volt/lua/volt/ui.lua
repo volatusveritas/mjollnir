@@ -55,7 +55,9 @@ function M.input(prompt, window_settings, callback)
 
     if win == 0 then
         msg.err('Could not create input window')
-        vim.api.nvim_set_current_win(original_window)
+        if vim.api.nvim_win_is_valid(original_window) then
+            vim.api.nvim_set_current_win(original_window)
+        end
         vim.api.nvim_buf_delete(buf, { force = true })
         vim.api.nvim_win_close(border_win, true)
         vim.api.nvim_buf_delete(border_buf, { force = true })
@@ -63,7 +65,9 @@ function M.input(prompt, window_settings, callback)
     end
 
     local fn_close = function()
-        vim.api.nvim_set_current_win(original_window)
+        if vim.api.nvim_win_is_valid(original_window) then
+            vim.api.nvim_set_current_win(original_window)
+        end
         vim.api.nvim_win_close(win, true)
         vim.api.nvim_buf_delete(buf, { force = true })
         vim.api.nvim_win_close(border_win, true)
