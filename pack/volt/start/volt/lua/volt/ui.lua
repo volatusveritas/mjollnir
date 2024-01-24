@@ -82,6 +82,7 @@ function M.input(prompt, window_settings, callback)
 
     keymap.insert({
         [keymap.opts] = { buffer = buf },
+
         ['<CR>'] = function()
             local answer = vim.api.nvim_buf_get_lines(buf, 0, -1, true)[1]
             vim.cmd.stopinsert()
