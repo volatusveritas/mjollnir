@@ -12,7 +12,7 @@ local highlight = require('volt.highlight')
 M.color = {}
 
 function volt_foldtext()
-    return string.format('%s...', vim.fn.getline(vim.v.foldstart))
+    return string.format('• %s...', vim.fn.getline(vim.v.foldstart))
 end
 
 --------------------------------- PUBLIC API ----------------------------------

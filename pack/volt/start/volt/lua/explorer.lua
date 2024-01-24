@@ -9,7 +9,7 @@ local M = {}
 -- - mark for copying or moving
 
 ----------------------------------- Imports -----------------------------------
-local vlua = require('volt.vlua')
+local vlua = require('volt.lua')
 local highlight = require('volt.highlight')
 local msg = require('volt.msg')
 
@@ -48,9 +48,9 @@ local function item_as_move_order(item)
 end
 
 local function explore(buf, path)
-    local file_lines = vlua.efficient_array_make()
-    local link_lines = vlua.efficient_array_make()
-    local folder_lines = vlua.efficient_array_make()
+    local file_lines = vlua.efficient_array()
+    local link_lines = vlua.efficient_array()
+    local folder_lines = vlua.efficient_array()
 
     for name, item_type in vim.fs.dir(path) do
         if item_type == 'directory' then
@@ -62,7 +62,7 @@ local function explore(buf, path)
         end
     end
 
-    local buflines = vlua.efficient_array_make()
+    local buflines = vlua.efficient_array()
 
     for i = 1, file_lines.length do
         buflines:insert(file_lines[i])
@@ -93,9 +93,9 @@ local function update_all_buffers()
 end
 
 local function apply_updates(buf)
-    local new_files = vlua.efficient_array_make()
-    local new_folders = vlua.efficient_array_make()
-    local new_links = vlua.efficient_array_make()
+    local new_files = vlua.efficient_array()
+    local new_folders = vlua.efficient_array()
+    local new_links = vlua.efficient_array()
     
     local new_targets = vim.api.nvim_buf_get_lines(buf, 0, -1, true)
 

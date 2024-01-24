@@ -3,7 +3,7 @@ local M = {}
 ----------------------------------- Imports -----------------------------------
 local vmath = require('volt.math')
     local vector2 = vmath.vector2
-local vnvim = require('volt.vnvim')
+local vnvim = require('volt.nvim')
 -------------------------------------------------------------------------------
 
 local function border_area(border)
