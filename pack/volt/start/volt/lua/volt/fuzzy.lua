@@ -9,7 +9,7 @@ local vlua = require 'volt.lua'
 
 local MAX_COMMON_PREFIX_LENGTH = 4
 
-local function jaro_winker_distance(s1, s2, prefix_adjustment)
+local function jaro_winkler_distance(s1, s2, prefix_adjustment)
     local n_s1 = #s1
     local n_s2 = #s2
 
