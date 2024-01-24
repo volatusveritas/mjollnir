@@ -45,7 +45,7 @@ local function volt_distance(target, candidate)
         return -1
     end
 
-    local smallest_sequence = nil
+    local indexes = nil
     local smallest_scattering = math.huge
 
     for _, sequence in ipairs(sequences) do
@@ -56,12 +56,12 @@ local function volt_distance(target, candidate)
         end
 
         if scattering < smallest_scattering then
-            smallest_sequence = sequence
+            indexes = sequence
             smallest_scattering = scattering
         end
     end
 
-    return smallest_scattering + math.abs(n_target - n_candidate)
+    return smallest_scattering + math.abs(n_target - n_candidate), indexes
 end
 
 --------------------------------- Public API ----------------------------------
@@ -77,12 +77,13 @@ function M.match(target, candidates)
     local matches = vlua.efficient_array()
 
     for _, candidate in ipairs(candidates) do
-        local distance = volt_distance(target, candidate)
+        local distance, indexes = volt_distance(target, candidate)
 
         if distance ~= -1 then
             matches:insert({
                 value = candidate,
                 distance = distance,
+                indexes = indexes,
             })
         end
     end
