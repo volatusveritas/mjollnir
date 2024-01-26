@@ -72,13 +72,14 @@ require('leap').add_default_mappings()
 local u = require('volt.u')
 local window = require('volt.window')
 
-local lens = require('lens')
-local keymap = require('keymap')
 local comment = require('comment')
 local explorer = require('explorer')
+local hunter = require('hunter')
+local keymap = require('keymap')
+local lens = require('lens')
 local palette = require('palette')
-local terminal = require('terminal')
 local color = palette.color
+local terminal = require('terminal')
 -------------------------------------------------------------------------------
 
 ---------------------------- Color Palette v1.0.1 -----------------------------
@@ -136,6 +137,14 @@ terminal.setup({
     key_leave = '<Esc>',
     key_close = 'q',
     key_kill = '<C-q>',
+})
+
+hunter.setup({
+    highlight_combos = { fg = color.purple },
+    highlight_selected = { fg= color.light1 },
+    highlight_option = { fg= color.light4 },
+    key_next = '<C-n>',
+    key_previous = '<C-p>',
 })
 -------------------------------------------------------------------------------
 

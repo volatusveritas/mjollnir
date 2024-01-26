@@ -2,7 +2,6 @@ local M = {}
 
 ----------------------------------- Imports -----------------------------------
 local vmath = require('volt.math')
-    local vector2 = vmath.vector2
 local vnvim = require('volt.nvim')
 -------------------------------------------------------------------------------
 
@@ -42,53 +41,40 @@ local function border_area(border)
             end
         end
 
-        return vector2(width, height)
+        return width, height
     elseif border == nil or border == 'none' then
-        return vector2(0, 0)
+        return 0, 0
     else
-        return vector2(2, 2)
+        return 2, 2
     end
-end
-
-local function normalize_dimension(value, basis, default)
-    value = value or default
-
-    if value < 1 then
-        value = value * basis
-    end
-
-    return math.floor(value)
 end
 
 --------------------------------- Public API ----------------------------------
-M.border_right_only =  { '', '', '', '│', '', '', '', '' }
-M.border_left_only =   { '', '', '', '', '', '', '', '│' }
-M.border_top_only =    { '', '─', '', '', '', '', '', '' }
-M.border_bottom_only = { '', '', '', '', '', '─', '', '' }
+M.border_left   = { '', '', '', '', '', '', '', '│' }
+M.border_right  = { '', '', '', '│', '', '', '', '' }
+M.border_top    = { '', '─', '', '', '', '', '', '' }
+M.border_bottom = { '', '', '', '', '', '─', '', '' }
 
-function M.open_rect(buf, enter, x, y, width, height, settings)
-    -- * width [0.5] (number) If <= 1, multiply the screen width by that,
-    --   otherwise use its value
-    -- * height [0.5] (number) If <= 1, multiply the screen height by that,
-    --   otherwise use its value
-
+function M.open(buf, enter, settings)
     -- Settings:
-    -- * focusable [true] (boolean) Refer to nvim_open_win
-    -- * zindex [50] (number) Refer to nvim_open_win
-    -- * style (string) Refer to nvim_open_win
-    -- * border ['single'] (string) Refer to nvim_open_win
-    -- * title (string|list)? Refer to nvim_open_win
-    -- * title_pos ['center'] (string)? Refer to nvim_open_win
-    -- * footer (string|list)? Refer to nvim_open_win
-    -- * footer_pos ['center'] (string)? Refer to nvim_open_win
-    -- * noautocmd (boolean)? Refer to nvim_open_win
-    -- * fixed (boolean)? Refer to nvim_open_win
-    -- * hide (boolean)? Refer to nvim_open_win
-    -- * ox [0] (number) An offset to apply to the window's x position
-    -- * oy [0] (number) An offset to apply to the window's y position
-
-    -- NOTE: This function expects width and height to have been obtained
-    -- through normalize_dimension().
+    -- * x (number) Refer to nvim_open_win's "col"
+    -- * y (number) Refer to nvim_open_win's "row"
+    -- * width (number) Refer to nvim_open_win
+    -- * height (number) Refer to nvim_open_win
+    -- * relative = 'editor' [string] Refer to nvim_open_win
+    -- * focusable = true [boolean] Refer to nvim_open_win
+    -- * zindex = 50 [number] Refer to nvim_open_win
+    -- * border = 'single' [string] Refer to nvim_open_win
+    -- * title_pos = 'center' [string] Refer to nvim_open_win
+    -- * footer_pos = 'center' [string] Refer to nvim_open_win
+    -- * offset_x = 0 [number] A value to be added to x
+    -- * offset_y = 0 [number] A value to be added to y
+    -- * style [string] Refer to nvim_open_win
+    -- * title [string|list] Refer to nvim_open_win
+    -- * footer [string|list] Refer to nvim_open_win
+    -- * noautocmd [boolean] Refer to nvim_open_win
+    -- * fixed [boolean] Refer to nvim_open_win
+    -- * hide [boolean] Refer to nvim_open_win
 
     if settings.title then
         settings.title_pos = settings.title_pos or 'center'
@@ -98,14 +84,12 @@ function M.open_rect(buf, enter, x, y, width, height, settings)
         settings.footer_pos = settings.footer_pos or 'center'
     end
 
-    local screen_size = vnvim.screen_size()
-
     return vim.api.nvim_open_win(buf, enter, {
-        relative = 'editor',
-        col = x + normalize_dimension(settings.ox, screen_size.x, 0),
-        row = y + normalize_dimension(settings.oy, screen_size.y, 0),
-        width = width,
-        height = height,
+        relative = settings.relative or 'editor',
+        col = settings.x + (settings.offset_x or 0),
+        row = settings.y + (settings.offset_y or 0),
+        width = settings.width,
+        height = settings.height,
         focusable = settings.focusable,
         zindex = settings.zindex,
         style = settings.style,
@@ -120,97 +104,143 @@ function M.open_rect(buf, enter, x, y, width, height, settings)
     })
 end
 
-function M.open_centered(buf, enter, settings)
-    local screen_size = vnvim.screen_size() - border_area(settings.border)
+function M.screen(settings)
+    local border_width, border_height = border_area(settings.border)
+    local screen_width = vnvim.screen_width() - border_width
+    local screen_height = vnvim.screen_height() - border_height
 
-    local width = normalize_dimension(settings.width, screen_size.x, 0.5)
-    local height = normalize_dimension(settings.height, screen_size.y, 0.5)
-    local x = (screen_size.x - width) / 2.0
-    local y = (screen_size.y - height) / 2.0
-
-    return M.open_rect(buf, enter, x, y, width, height, settings)
+    return vim.tbl_extend('force', settings, {
+        x = vmath.to_axis(settings.x or 0, screen_width),
+        y = vmath.to_axis(settings.y or 0, screen_height),
+        offset_x = vmath.to_axis(settings.offset_x or 0, screen_width),
+        offset_y = vmath.to_axis(settings.offset_y or 0, screen_height),
+        width = vmath.to_axis(settings.width or 0, screen_width),
+        height = vmath.to_axis(settings.height or 0, screen_height),
+    })
 end
 
-function M.open_bottom_left(buf, enter, settings)
-    local screen_size = vnvim.screen_size() - border_area(settings.border)
+function M.centered(settings)
+    settings.width = settings.width or 0.5
+    settings.height = settings.height or 0.5
+    settings = M.screen(settings)
 
-    local width = normalize_dimension(settings.width, screen_size.x, 0.5)
-    local height = normalize_dimension(settings.height, screen_size.y, 0.5)
-    local y = screen_size.y - height
+    local border_width, border_height = border_area(settings.border)
+    local screen_width = vnvim.screen_width() - border_width
+    local screen_height = vnvim.screen_height() - border_height
 
-    return M.open_rect(buf, enter, 0, y, width, height, settings)
+    return vim.tbl_extend('force', settings, {
+        x = vmath.to_axis((screen_width - settings.width) / 2.0),
+        y = vmath.to_axis((screen_height - settings.height) / 2.0),
+    })
 end
 
-function M.open_bottom_right(buf, enter, settings)
-    local screen_size = vnvim.screen_size() - border_area(settings.border)
+function M.bottom_left(settings)
+    settings.width = settings.width or 0.5
+    settings.height = settings.height or 0.5
+    settings = M.screen(settings)
 
-    local width = normalize_dimension(settings.width, screen_size.x, 0.5)
-    local height = normalize_dimension(settings.height, screen_size.y, 0.5)
-    local x = screen_size.x - width
-    local y = screen_size.y - height
+    local screen_width = vnvim.screen_width() - border_area(settings.border)
 
-    return M.open_rect(buf, enter, x, y, width, height, settings)
+    return vim.tbl_extend('force', settings, {
+        x = 0,
+        y = vmath.to_axis(screen_width - settings.height),
+    })
 end
 
-function M.open_top_left(buf, enter, settings)
-    local screen_size = vnvim.screen_size() - border_area(settings.border)
+function M.bottom_right(settings)
+    settings.width = settings.width or 0.5
+    settings.height = settings.height or 0.5
+    settings = M.screen(settings)
 
-    local width = normalize_dimension(settings.width, screen_size.x, 0.5)
-    local height = normalize_dimension(settings.height, screen_size.y, 0.5)
+    local border_width, border_height = border_area(settings.border)
+    local screen_width = vnvim.screen_width() - border_width
+    local screen_height = vnvim.screen_height() - border_height
 
-    return M.open_rect(buf, enter, 0, 0, width, height, settings)
+    return vim.tbl_extend('force', settings, {
+        x = vmath.to_axis(screen_width - settings.width),
+        y = vmath.to_axis(screen_height - settings.height),
+    })
 end
 
-function M.open_top_right(buf, enter, settings)
-    local screen_size = vnvim.screen_size() - border_area(settings.border)
-
-    local width = normalize_dimension(settings.width, screen_size.x, 0.5)
-    local height = normalize_dimension(settings.height, screen_size.y, 0.5)
-    local x = screen_size.x - width
-
-    return M.open_rect(buf, enter, x, 0, width, height, settings)
+function M.top_left(settings)
+    settings.width = settings.width or 0.5
+    settings.height = settings.height or 0.5
+    return vim.tbl_extend('force', settings, { x = 0, y = 0 })
 end
 
-function M.open_left(buf, enter, settings)
+function M.top_right(settings)
+    settings.width = settings.width or 0.5
+    settings.height = settings.height or 0.5
+    settings = M.screen(settings)
+
+    local screen_width = vnvim.screen_width() - border_area(settings.border)
+
+    return vim.tbl_extend('force', settings, {
+        x = vmath.to_axis(screen_width - settings.width),
+        y = 0,
+    })
+end
+
+function M.left(settings)
+    settings.width = settings.width or 0.375
+    settings = M.screen(settings)
     settings.border = settings.border or M.border_right_only
 
-    local screen_size = vnvim.screen_size - border_area(settings.border)
+    local _, border_height = border_area(settings.border)
+    local screen_height = vnvim.screen_height() - border_height
 
-    local width = normalize_dimension(settings.width, screen_size.x, 0.375)
-
-    return M.open_rect(buf, enter, 0, 0, width, screen_size.y, settings)
+    return vim.tbl_extend('force', settings, {
+        x = 0,
+        y = 0,
+        width = vmath.to_axis(settings.width),
+        height = vmath.to_axis(screen_height),
+    })
 end
 
-function M.open_right(buf, enter, settings)
+function M.right(settings)
+    settings.width = settings.width or 0.375
+    settings = M.screen(settings)
     settings.border = settings.border or M.border_left_only
 
-    local screen_size = vnvim.screen_size - border_area(settings.border)
+    local border_width, border_height = border_area(settings.border)
+    local screen_width = vnvim.screen_width() - border_width
+    local screen_height = vnvim.screen_height() - border_height
 
-    local width = normalize_dimension(settings.width, screen_size.x, 0.375)
-    local x = screen_size.x - width
-
-    return M.open_rect(buf, enter, x, 0, width, screen_size.y, settings)
+    return vim.tbl_extend('force', settings, {
+        x = vmath.to_axis(screen_width - settings.width),
+        y = 0,
+        height = vmath.to_axis(screen_height),
+    })
 end
 
-function M.open_top(buf, enter, settings)
+function M.top(settings)
+    settings.height = settings.height or 0.375
+    settings = M.screen(settings)
     settings.border = settings.border or M.border_bottom_only
 
-    local screen_size = vnvim.screen_size - border_area(settings.border)
+    local screen_width = vnvim.screen_width() - border_area(settings.border)
 
-    local height = normalize_dimension(settings.height, screen_size.y, 0.375)
-
-    return M.open_rect(buf, enter, 0, 0, screen_size.x, height, settings)
+    return vim.tbl_extend('force', settings, {
+        x = 0,
+        y = 0,
+        width = vmath.to_axis(screen_width),
+    })
 end
 
-function M.open_bottom(buf, enter, settings)
+function M.bottom(settings)
+    settings.height = settings.height or 0.375
+    settings = M.screen(settings)
     settings.border = settings.border or M.border_top_only
 
-    local screen_size = vnvim.screen_size - border_area(settings.border)
+    local border_width, border_height = border_area(settings.border)
+    local screen_width = vnvim.screen_width() - border_width
+    local screen_height = vnvim.screen_height() - border_height
 
-    local height = normalize_dimension(settings.height, screen_size.y, 0.375)
-    local y = screen_size.y - height
-
-    return M.open_rect(buf, enter, 0, y, screen_size.x, height, settings)
+    vim.tbl_extend('force', settings, {
+        x = 0,
+        y = vmath.to_axis(screen_height - settings.height),
+        width = vmath.to_axis(screen_width),
+    })
 end
 -------------------------------------------------------------------------------
 

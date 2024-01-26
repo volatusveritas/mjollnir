@@ -7,9 +7,9 @@ local vlua = require('volt.lua')
 
 --------------------------------- Public API ----------------------------------
 function M.cmdline()
-    ui.input('cmdline', { oy = 0.375 }, function(command)
-        vim.schedule(function() vim.cmd(command) end)
-    end)
+    ui.input('cmdline', { offset_y = 0.375 }, {
+        on_confirm = vim.schedule_wrap(vim.cmd),
+    })
 end
 -------------------------------------------------------------------------------
 
