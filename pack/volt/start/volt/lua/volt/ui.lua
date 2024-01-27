@@ -9,7 +9,7 @@ local keymap = require('keymap')
 local augroup = nil
 
 --------------------------------- Public API ----------------------------------
-function M.input(prompt, window_settings, opts)
+function M.input(prompt, opts)
     local original_window = vim.api.nvim_get_current_win()
 
     local border_buf = vim.api.nvim_create_buf(false, true)
@@ -27,15 +27,18 @@ function M.input(prompt, window_settings, opts)
         return
     end
 
-    local border_window_opts = window.centered(vim.tbl_extend('keep', window_settings, {
-        title = prompt,
-        style = 'minimal',
-        border = 'rounded',
-        height = 1,
-        width = 0.3,
-    }))
+    local border_win_opts = opts.win_opts or window.offset(
+        window.centered(window.screen({
+            title = string.format(' %s ', prompt),
+            style = 'minimal',
+            border = 'rounded',
+            height = 1,
+            width = .35
+        })),
+        window.screen({ y = -.375 })
+    )
 
-    local border_win = window.open(border_buf, true, border_window_opts)
+    local border_win = window.open(border_buf, true, border_win_opts)
 
     if border_win == 0 then
         msg.err('Could not create input window')
@@ -44,15 +47,13 @@ function M.input(prompt, window_settings, opts)
         return
     end
 
-    local window_opts = vim.tbl_extend('force', border_window_opts, {
-        style = 'minimal',
-        border = 'none',
-        x = border_window_opts.x + 2,
-        y = border_window_opts.y + 1,
-        width = vim.api.nvim_win_get_width(border_win) - 2,
-    })
+    local win_opts = vim.tbl_extend(
+        'force',
+        window.contained(border_win_opts, { left = 1, right = 1 }),
+        { border = 'none' }
+    )
 
-    local win = window.open(buf, true, window_opts)
+    local win = window.open(buf, true, win_opts)
 
     if win == 0 then
         msg.err('Could not create input window')
@@ -80,7 +81,8 @@ function M.input(prompt, window_settings, opts)
         group = augroup,
         buffer = buf,
         callback = function()
-            local text = vim.api.nvim_buf_get_lines(buf, 0, -1, true)[1]
+            local text = vim.api.nvim_buf_get_lines(buf, 0, 1, true)[1]
+
             fn_close()
 
             if opts.on_cancel ~= nil then
@@ -94,8 +96,7 @@ function M.input(prompt, window_settings, opts)
             group = augroup,
             buffer = buf,
             callback = function()
-                local text = vim.api.nvim_buf_get_lines(buf, 0, -1, true)[1]
-                opts.on_change(text)
+                opts.on_change(vim.api.nvim_buf_get_lines(buf, 0, 1, true)[1])
             end,
         })
     end
@@ -104,7 +105,8 @@ function M.input(prompt, window_settings, opts)
         [keymap.opts] = { buffer = buf },
 
         ['<CR>'] = function()
-            local answer = vim.api.nvim_buf_get_lines(buf, 0, -1, true)[1]
+            local answer = vim.api.nvim_buf_get_lines(buf, 0, 1, true)[1]
+
             vim.cmd.stopinsert()
             fn_close()
 

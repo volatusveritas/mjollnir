@@ -170,6 +170,14 @@ keymap.normal({ -- terminal.volt
     ['<Leader>t'] = terminal.open_floating
 })
 
+keymap.normal({ -- hunter.volt
+    ['<Leader>f'] = {
+        l = function()
+            hunter.hunt(hunter.files(), { on_tracked = vim.cmd.edit })
+        end,
+    },
+})
+
 keymap.normal({ -- Window
     w = {
         h = '<C-w>h',
@@ -194,13 +202,6 @@ keymap.normal({ -- Window
             j = '<C-w>r',
             k = '<C-w>R',
         },
-    },
-})
-
-keymap.normal({ -- File
-    ['<Leader>f'] = {
-        s = '<Cmd>update<CR>',
-        ['<Leader>s'] = '<Cmd>wall<CR>',
     },
 })
 
