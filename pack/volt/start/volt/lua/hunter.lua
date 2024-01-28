@@ -15,7 +15,7 @@ local ns = nil
 local keys = nil
 
 --------------------------------- Public API ----------------------------------
-function M.hunt(entries, opts)
+function M.hunt(trail, entries, opts)
     -- Opts:
     -- • on_tracked [function] A callback to be called when an item is
     -- selected; the selected item's text is passed as an argument
@@ -125,7 +125,7 @@ function M.hunt(entries, opts)
     end
 
     local input_win_opts = window.offset(entries_win_opts, { y = -3 })
-    input_win_opts.title = ' Search '
+    input_win_opts.title = string.format(' Search: %s ', trail)
     input_win_opts.height = 1
 
     local input_view = ui.input('Search', {
@@ -168,16 +168,48 @@ function M.hunt(entries, opts)
     update_matches('')
 end
 
-function M.files()
+function M.hunt_files(opts)
+    -- Opts:
+    -- • skip (string[]) List of folders to skip
     local entries = vlua.efficient_array()
 
-    for name, type in vim.fs.dir('.', { depth = math.huge }) do
+    local skip = nil
+
+    if opts.skip then
+        skip = function(dir_name)
+            if vim.list_contains(opts.skip, dir_name) then
+                return false
+            end
+        end
+    end
+
+    for name, type in vim.fs.dir('.', { depth = math.huge, skip = skip }) do
         if type == 'file' then
             entries:insert(name)
         end
     end
 
-    return entries
+    M.hunt('Files', entries, { on_tracked = vim.cmd.edit })
+end
+
+function M.hunt_buffers()
+    local bufnames = vlua.efficient_array()
+
+    for bufnum = 1, vim.fn.bufnr('$') do
+        if vim.fn.buflisted(bufnum) == 1 and bufnum ~= vim.fn.bufnr() then
+            local name = vim.fn.bufname(bufnum)
+
+            if name == '' then
+                name = string.format('<Unnamed::%d>', bufnum)
+            end
+
+            bufnames:insert(name)
+        end
+    end
+
+    M.hunt('Buffers', bufnames, { on_tracked = function(bufname)
+        vim.api.nvim_win_set_buf(0, vim.fn.bufnr(bufname))
+    end})
 end
 
 function M.setup(opts)

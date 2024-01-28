@@ -14,12 +14,13 @@ local augroup = nil
 M.terminal_bufs = {}
 
 function M.open_floating()
-    window.open(0, true, window.centered({
-        title = 'Terminal',
+    window.open(0, true, window.centered(window.screen({
+        title = ' Terminal ',
         border = 'rounded',
         style = 'minimal',
-        height = 0.6,
-    }))
+        width = 0.6,
+        height = 0.65,
+    })))
 
     local terminal_index = vim.v.count1
 

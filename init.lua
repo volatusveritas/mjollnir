@@ -17,6 +17,7 @@ vim.o.mouse = ''
 vim.o.showmode = false
 vim.o.cmdheight = 0
 vim.o.laststatus = 0
+vim.o.more = false
 
 vim.o.shell = "nu"
 vim.o.shellcmdflag = "-c"
@@ -172,9 +173,8 @@ keymap.normal({ -- terminal.volt
 
 keymap.normal({ -- hunter.volt
     ['<Leader>f'] = {
-        l = function()
-            hunter.hunt(hunter.files(), { on_tracked = vim.cmd.edit })
-        end,
+        d = function() hunter.hunt_files({ skip = { '.git' } }) end,
+        a = hunter.hunt_buffers,
     },
 })
 
