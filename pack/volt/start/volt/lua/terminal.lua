@@ -7,6 +7,7 @@ local keymap = require('keymap')
 
 -- :: map[string]string
 local keys = nil
+-- :: number
 local augroup = nil
 
 --------------------------------- Public API ----------------------------------
@@ -85,6 +86,15 @@ function M.setup(opts)
         close = opts.key_close,
         kill = opts.key_kill,
     }
+
+    vim.api.nvim_create_autocmd('ExitPre', {
+        group = augroup,
+        callback = function()
+            for idx, buf in pairs(M.terminal_bufs) do
+                vim.api.nvim_buf_delete(buf, { force = true })
+            end
+        end,
+    })
 end
 -------------------------------------------------------------------------------
 
