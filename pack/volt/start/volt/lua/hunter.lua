@@ -8,6 +8,7 @@ local msg = require('volt.msg')
 local vlua = require('volt.lua')
 local highlight = require('volt.highlight')
 local keymap = require('keymap')
+local keymap2 = require('keymap2')
 local vnvim = require('volt.nvim')
 -------------------------------------------------------------------------------
 
@@ -152,18 +153,23 @@ function M.hunt(trail, entries, opts)
         return
     end
 
-    keymap.insert({
-        [keymap.opts] = { buffer = input_view.buf },
-
-        [keys.next] = function()
-            selected = math.min(selected + 1, n_entry_lines)
-            update_highlights()
-        end,
-        [keys.previous] = function()
-            selected = math.max(selected - 1, 1)
-            update_highlights()
-        end,
-    })
+    keymap2.insert()
+    :group({ key = '', opts = { buffer = input_view.buf } })
+        :set({
+            key = keys.next,
+            map = function()
+                selected = math.min(selected + 1, n_entry_lines)
+                update_highlights()
+            end
+        })
+        :set({
+            key = keys.previous,
+            map = function()
+                selected = math.max(selected - 1, 1)
+                update_highlights()
+            end
+        })
+    :endgroup()
 
     update_matches('')
 end

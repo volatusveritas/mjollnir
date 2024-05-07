@@ -1,5 +1,0 @@
-vim.cmd([=[syntax match ExplorerFile ;\([^[:space:]]\+->\)\@<=.*;]=])
-vim.cmd([=[syntax match ExplorerFile ;[^[:space:]]\+\(\(->\)\?\)\@=;]=])
-vim.cmd([=[syntax match ExplorerFolder ;\([^[:space:]]\+/->\)\@<=.*;]=])
-vim.cmd([=[syntax match ExplorerFolder ;[^[:space:]]\+/\(\(->\)\?\)\@=;]=])
-vim.cmd([=[syntax match Operator /->/]=])

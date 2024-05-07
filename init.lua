@@ -1,7 +1,10 @@
+-- TODO(volatus): REWRITE FUCKING EXPLORER FFS
+
 ----------------------------------- Options -----------------------------------
 vim.o.shiftwidth = 4
-vim.o.colorcolumn = '80'
-vim.o.textwidth = 79
+-- vim.o.colorcolumn = '80'
+-- vim.o.textwidth = 79
+vim.o.wrap = false
 vim.o.number = true
 vim.o.relativenumber = true
 vim.o.expandtab = true
@@ -76,19 +79,19 @@ local window = require('volt.window')
 local comment = require('comment')
 local explorer = require('explorer')
 local hunter = require('hunter')
-local keymap = require('keymap')
-local lens = require('lens')
+local keymap2 = require('keymap2')
 local palette = require('palette')
 local color = palette.color
 local terminal = require('terminal')
+local edit = require('edit')
 -------------------------------------------------------------------------------
 
----------------------------- Color Palette v1.0.1 -----------------------------
+--------------------------- Volatus Palette v1.0.1 ----------------------------
 color.purple = '#e2a6ff'
 color.red =    '#f37a7a'
 color.orange = '#ffbb80'
 color.green =  '#a2f37a'
-color.yellow = '#f5f57a'
+color.yellow = '#ffdd33'
 color.blue =   '#8cd9ff'
 color.cyan =   '#8cfffd'
 
@@ -114,9 +117,9 @@ color.light1 = '#f1f1f1'
 color.light2 = '#d9d9d9'
 color.light3 = '#c2c4c4'
 color.light4 = '#a8adb3'
+-------------------------------------------------------------------------------
 
 palette.apply()
--------------------------------------------------------------------------------
 
 ----------------------------------- Setups ------------------------------------
 explorer.setup({
@@ -134,8 +137,10 @@ explorer.setup({
 })
 
 terminal.setup({
-    key_special = '<C-s>',
-    key_leave = '<Esc>',
+    key_term_escape = '<C-s>',
+    key_term_leave = '<Esc>',
+    key_term_close = '<C-q>',
+    key_term_kill = '<C-d>',
     key_close = 'q',
     key_kill = '<C-q>',
 })
@@ -149,9 +154,21 @@ hunter.setup({
 })
 -------------------------------------------------------------------------------
 
----------------------------------- Mappings -----------------------------------
-keymap.normal({ -- Neovim
-    ['<C-q>'] = function()
+---------------------------------- Mappings ---------------------------------
+keymap2.insert() -- [INSERT]
+
+-- Insert Mode Movement
+:set({ key = '<C-f>', map = '<Right>', })
+:set({ key = '<C-b>', map = '<Left>', })
+:set({ key = '<A-n>', map = '<Down>', })
+:set({ key = '<A-p>', map = '<Up>', })
+
+keymap2.normal() -- [NORMAL]
+
+-- Neovim
+:set({
+    key = '<C-q>',
+    map = function()
         local choice = vim.fn.confirm(
             'Are you sure you want to leave?',
             '&Yes\n&No', 1
@@ -163,196 +180,222 @@ keymap.normal({ -- Neovim
     end
 })
 
-keymap.normal({ -- lens.volt
-    [':'] = lens.cmdline
+-- Editing
+:set({ key = 'dl', map = 'dd' })
+
+-- terminal
+:group({ key = '<Leader>t' })
+    :set({ key = 'o', map = terminal.open_floating })
+    :set({ key = 'h', map = terminal.open_left })
+    :set({ key = 'j', map = terminal.open_below })
+    :set({ key = 'k', map = terminal.open_above })
+    :set({ key = 'l', map = terminal.open_right })
+:endgroup()
+
+-- hunter
+:group({ key = '<Leader>f' })
+    :set({ key = 'd', map = function() hunter.hunt_files({ skip = { '.git' } }) end })
+    :set({ key = 'a', map = hunter.hunt_buffers })
+:endgroup()
+
+-- edit
+:set({
+    key = '<A-j>',
+    map = function()
+        local current_line = vim.fn.line('.')
+
+        if current_line == vim.fn.line('$') then
+            return
+        end
+
+        local position = vim.fn.getpos('.')
+        edit.swap_lines(vim.fn.bufnr(), current_line, current_line + 1)
+        vim.fn.cursor(position[2] + 1, position[3])
+    end
+})
+:set({
+    key = '<A-k>',
+    map = function()
+        local current_line = vim.fn.line('.')
+
+        if current_line == 1 then
+            return
+        end
+
+        local position = vim.fn.getpos('.')
+        edit.swap_lines(vim.fn.bufnr(), current_line, current_line - 1)
+        vim.fn.cursor(position[2] - 1, position[3])
+    end
 })
 
-keymap.normal({ -- terminal.volt
-    ['<Leader>t'] = terminal.open_floating
-})
+-- Window
+:group({ key = 'w' })
+    :set({ key = 'h', map = '<C-w>h' })
+    :set({ key = 'j', map = '<C-w>j' })
+    :set({ key = 'k', map = '<C-w>k' })
+    :set({ key = 'l', map = '<C-w>l' })
+    :set({ key = 'q', map = '<C-w>q' })
+    :set({ key = 's', map = '<C-w>s' })
+    :set({ key = 'v', map = '<C-w>v' })
+    :set({ key = 'n', map = '<C-w>n' })
+    :set({ key = 't', map = '<C-w>t' })
+    :set({ key = 'x', map = '<C-w>x' })
 
-keymap.normal({ -- hunter.volt
-    ['<Leader>f'] = {
-        d = function() hunter.hunt_files({ skip = { '.git' } }) end,
-        a = hunter.hunt_buffers,
-    },
-})
+    :group({ key = 'r' })
+        :set({ key = 'j', map = '<C-w>r' })
+        :set({ key = 'k', map = '<C-w>R' })
+    :endgroup()
 
-keymap.normal({ -- Window
-    w = {
-        h = '<C-w>h',
-        j = '<C-w>j',
-        k = '<C-w>k',
-        l = '<C-w>l',
-        q = '<C-w>q',
-        s = '<C-w>s',
-        v = '<C-w>v',
-        n = '<C-w>n',
-        t = '<C-w>t',
-        x = '<C-w>x',
-        ['<Leader>'] = {
-            q = '<Cmd>quit!<CR>',
-            h = '<C-w>H',
-            j = '<C-w>J',
-            k = '<C-w>K',
-            l = '<C-w>L',
-            t = '<C-w>T',
-        },
-        r = {
-            j = '<C-w>r',
-            k = '<C-w>R',
-        },
-    },
-})
+    :group({ key = '<Leader>' })
+        :set({ key = 'q', map = '<Cmd>quit!<CR>' })
+        :set({ key = 'h', map = '<C-w>H' })
+        :set({ key = 'j', map = '<C-w>J' })
+        :set({ key = 'k', map = '<C-w>K' })
+        :set({ key = 'l', map = '<C-w>L' })
+        :set({ key = 't', map = '<C-w>T' })
+    :endgroup()
+:endgroup()
 
-keymap.normal({ -- Clipboard
-    ['<Leader>'] = {
-        y = '"+y',
-        p = '"+p',
-        P = '"+P',
-    },
-})
+-- Clipboard
+:group({ key = '<Leader>' })
+    :set({ key = 'y', map = '"+y' })
+    :set({ key = 'p', map = '"+p' })
+    :set({ key = 'P', map = '"+P' })
+:endgroup()
 
-keymap.normal({ -- Quickfix List
-    [keymap.operator] = true,
-    ['<Leader>e'] = {
-         l = '<Cmd>cnext<CR>',
-         h = '<Cmd>cprevious<CR>',
-         j = '<Cmd>cbelow<CR>',
-         k = '<Cmd>cabove<CR>',
-         r = '<Cmd>cfirst<CR>',
-         ['<Leader>'] = '<Cmd>clist<CR>',
-     },
-})
+-- Quickfix List
+:group({ key = '<Leader>e', opts = { operator = true } })
+     :set({ key = 'l', map = '<Cmd>cnext<CR>' })
+     :set({ key = 'h', map = '<Cmd>cprevious<CR>' })
+     :set({ key = 'j', map = '<Cmd>cbelow<CR>' })
+     :set({ key = 'k', map = '<Cmd>cabove<CR>' })
+     :set({ key = 'r', map = '<Cmd>cfirst<CR>' })
+     :set({ key = '<Leader>', map = '<Cmd>clist<CR>' })
+:endgroup()
 
-keymap.normal({ -- Comment
-    ['<Leader>c'] = {
-        [keymap.self] = {
-            [keymap.operator] = true,
-            function()
-                 comment.toggle(0, vim.fn.line("'["), vim.fn.line("']"))
-            end,
-        },
-        ['<Leader>'] = function()
+-- Comment
+:group({ key = '<Leader>c' })
+    :self({
+        opts = { operator = true },
+        map = function()
+            comment.toggle(0, vim.fn.line("'["), vim.fn.line("']"))
+        end
+    })
+
+    :set({
+        key = '<Leader>',
+        map = function()
             local line = vim.fn.line('.')
             comment.toggle(0, line, line)
-        end,
-        ['['] = {
-            [keymap.self] = {
-                [keymap.operator] = true,
-                 function()
-                     comment.uncomment(0, vim.fn.line("'["), vim.fn.line("']"))
-                 end
-            },
-            ['<Leader>'] = function()
+        end
+    })
+
+    :group({ key = '[' })
+        :self({
+            opts = { operator = true },
+            map = function()
+                comment.uncomment(0, vim.fn.line("'["), vim.fn.line("']"))
+            end
+        })
+
+        :set({
+            key = '<Leader>',
+            map = function()
                 local line = vim.fn.line('.')
                 comment.uncomment(0, line, line)
-            end,
-        },
-        [']'] = {
-            [keymap.self] = {
-                [keymap.operator] = true,
-                 function()
-                     comment.comment(0, vim.fn.line("'["), vim.fn.line("']"))
-                 end
-            },
-            ['<Leader>'] = function()
+            end
+        })
+    :endgroup()
+
+    :group({ key = ']' })
+        :self({
+            opts = { operator = true },
+            map = function()
+                comment.comment(0, vim.fn.line("'["), vim.fn.line("']"))
+            end
+        })
+
+        :set({
+            key = '<Leader>',
+            map = function()
                 local line = vim.fn.line('.')
                 comment.comment(0, line, line)
-            end,
-        },
-    },
-})
+            end
+        })
+    :endgroup()
+:endgroup()
 
-keymap.normal({ -- Explorer
-    ['<Leader>l'] = {
-        ['<Leader>'] = explorer.start,
-        f = function()
-            explorer.start(vim.fs.dirname(vim.fn.expand('%:p')))
-        end,
-    },
-})
+-- Movement
+:group({ key = 'g' })
+    :set({ key = 'k', map = 'gg' })
+    :set({ key = 'j', map = 'G' })
+    :set({ key = 'l', map = '$' })
+    :set({ key = 'h', map = '0' })
+    :set({ key = 'o', map = ':find ' })
+    :set({ key = 'a', map = '^' })
+    :set({ key = 'z', map = 'j' })
+:endgroup()
 
-keymap.normal({ -- Movement
-    g = {
-        k = 'gg',
-        j = 'G',
-        l = '$',
-        h = '0',
-        o = ':find ',
-        a = '^',
-        z = 'j',
-    },
-})
+-- Previous & Next (brackets)
+:group({ key = '[' })
+    :set({ key = 'b', map = '<Cmd>bprevious<CR>' })
+    :set({ key = 't', map = 'gT' })
+:endgroup()
 
-keymap.normal({ -- Previous
-    ['['] = {
-        b = '<Cmd>bprevious<CR>',
-        t = 'gT',
-    },
-})
+-- Next
+:group({ key = ']' })
+    :set({ key = 'b', map = '<Cmd>bnext<CR>' })
+    :set({ key = 't', map = 'gt' })
+:endgroup()
 
-keymap.normal({ -- Next
-    [']'] = {
-        b = '<Cmd>bnext<CR>',
-        t = 'gt',
-    },
-})
+keymap2.visual() -- [VISUAL]
 
-keymap.visual({ -- Clipboard (Visual)
-    ['<Leader>'] = {
-        y = '"+y',
-        p = '"+p',
-        P = '"+P',
-    },
-})
+-- Clipboard (Visual)
+:group({ key = '<Leader>' })
+    :set({ key = 'y', map = '"+y' })
+    :set({ key = 'p', map = '"+p' })
+    :set({ key = 'P', map = '"+P' })
+:endgroup()
 
-keymap.visual({ -- Comment (Visual)
-    ['<Leader>c'] = {
-        ['<Leader>'] = function()
+-- Comment (Visual)
+:group({ key = '<Leader>c' })
+    :set({
+        key = '<Leader>',
+        map = function()
             comment.toggle(0, unpack({u.normalize_range(
                 vim.fn.line('v'),
                 vim.fn.line('.')
             )}))
-        end,
-        ['['] = function()
+        end
+    })
+    :set({
+        key = '[',
+        map = function()
             comment.uncomment(0, unpack({u.normalize_range(
                 vim.fn.line('v'),
                 vim.fn.line('.')
             )}))
-        end,
-        [']'] = function()
+        end
+    })
+    :set({
+        key = ']',
+        map = function()
             comment.comment(0, unpack({u.normalize_range(
                 vim.fn.line('v'),
                 vim.fn.line('.')
             )}))
-        end,
-    },
-})
+        end
+    })
+:endgroup()
 
-keymap.visual({ -- Movement (Visual)
-    g = {
-        k = 'gg',
-        j = 'G',
-        l = '$',
-        h = '0',
-    },
-})
+-- Movement (Visual)
+:group({ key = 'g' })
+    :set({ key = 'k', map = 'gg' })
+    :set({ key = 'j', map = 'G' })
+    :set({ key = 'l', map = '$' })
+    :set({ key = 'h', map = '0' })
+:endgroup()
 
-keymap.visual({ -- Search (Visual)
-    s =  '/',
-})
-
-keymap.normal({ -- Editing
-    dl = 'dd',
-})
-
-keymap.normal({ -- Debug
-    ['<Leader><LocalLeader>w'] = function()
-        local buf = vim.api.nvim_create_buf(false, true)
-        window.open_right(buf, true, {
-            title = ' Window Title ',
-        })
-    end
-})
+-- Search (Visual)
+:set({ key = 's', map = '/' })
 -------------------------------------------------------------------------------

@@ -4,6 +4,7 @@ local M = {}
 local msg = require('volt.msg')
 local window = require('volt.window')
 local keymap = require('keymap')
+local keymap2 = require('keymap2')
 ------------------------------------------------------------------------------
 
 local augroup = nil
@@ -101,20 +102,22 @@ function M.input(prompt, opts)
         })
     end
 
-    keymap.insert({
-        [keymap.opts] = { buffer = buf },
+    keymap2.insert()
+    :group({ key = '', opts = { buffer = buf } })
+        :set({
+            key = '<CR>',
+            map = function()
+                local answer = vim.api.nvim_buf_get_lines(buf, 0, 1, true)[1]
 
-        ['<CR>'] = function()
-            local answer = vim.api.nvim_buf_get_lines(buf, 0, 1, true)[1]
+                vim.cmd.stopinsert()
+                fn_close()
 
-            vim.cmd.stopinsert()
-            fn_close()
-
-            if opts.on_confirm ~= nil then
-                opts.on_confirm(answer)
+                if opts.on_confirm ~= nil then
+                    opts.on_confirm(answer)
+                end
             end
-        end,
-    })
+        })
+    :endgroup()
 
     vim.cmd.startinsert()
 

@@ -1,7 +1,5 @@
 local M = {}
 
--- TODO: warn on keymap overrides
-
 M.opts = '____opts____'
 M.operator = '____operator____'
 M.self = '____self____'
@@ -17,8 +15,6 @@ local function propagate(from, to)
             to[key] = from[key]
         end
     end
-
-    vim.print(to)
 end
 
 local function set(mode, grid, root)
@@ -32,8 +28,10 @@ local function set(mode, grid, root)
         end
 
         if key == M.opts or key == M.operator then
-            -- Do nothing
-        elseif type(map) == 'string' or type(map) == 'function' then
+            return
+        end
+
+        if type(map) == 'string' or type(map) == 'function' then
             if grid[M.operator] then
                 -- Operator function
                 if grid[M.opts] == nil then

@@ -1,20 +1,73 @@
-local M = {}
+local terminal = {}
 
 ----------------------------------- Imports -----------------------------------
 local window = require('volt.window')
-local keymap = require('keymap')
+local keymap2 = require('keymap2')
 -------------------------------------------------------------------------------
 
--- :: map[string]string
+--:: map[string]string
 local keys = nil
--- :: number
+--:: number
 local augroup = nil
 
 --------------------------------- Public API ----------------------------------
--- :: map[term_index(number)]bufnr(number)
-M.terminal_bufs = {}
+--:: map[term_index(number)]bufnr(number)
+terminal.terminal_bufs = {}
 
-function M.open_floating()
+-- Starts a terminal buffer in the current window
+function terminal.start_terminal()
+    local terminal_index = vim.v.count1
+    local terminal_buf = terminal.terminal_bufs[terminal_index]
+
+    if terminal_buf == nil then
+        vim.cmd.terminal()
+
+        local new_terminal_buf = vim.api.nvim_get_current_buf()
+
+        terminal.terminal_bufs[terminal_index] = new_terminal_buf
+        terminal_buf = new_terminal_buf
+    else
+        vim.api.nvim_set_current_buf(terminal_buf)
+    end
+
+    local fn_terminal_kill = function()
+        vim.api.nvim_buf_delete(terminal_buf, { force = true })
+        print('terminal kill called')
+    end
+
+    keymap2.normal()
+    :group({ opts = { buffer = terminal_buf } })
+        :set({ key = keys.close, map = '<C-w>q' })
+        :set({ key = keys.kill, map = fn_terminal_kill })
+    :endgroup()
+
+    keymap2.terminal()
+    :group({ opts = { buffer = terminal_buf } })
+        :set({ key = keys.term_escape, map = [[<C-\><Esc>]] })
+        :set({ key = keys.term_leave, map = [[<C-\><C-n>]] })
+        :set({ key = keys.term_close, map = [[<C-\><C-n><C-w>q]] })
+        :set({ key = keys.term_kill, map = fn_terminal_kill })
+    :endgroup()
+
+    vim.bo.filetype = 'terminal_instance'
+
+    vim.api.nvim_create_autocmd('BufDelete', {
+        group = augroup,
+        buffer = terminal_buf,
+        callback = function(context)
+            for idx, buf in pairs(terminal.terminal_bufs) do
+                if buf == context.buf then
+                    terminal.terminal_bufs[idx] = nil
+                    break
+                end
+            end
+        end,
+    })
+
+    vim.cmd.startinsert()
+end
+
+function terminal.open_floating()
     window.open(0, true, window.centered(window.screen({
         title = ' Terminal ',
         border = 'rounded',
@@ -23,46 +76,10 @@ function M.open_floating()
         height = 0.65,
     })))
 
-    local terminal_index = vim.v.count1
+    terminal.start_terminal()
 
-    if M.terminal_bufs[terminal_index] == nil then
-        vim.cmd.terminal()
-        M.terminal_bufs[terminal_index] = vim.api.nvim_get_current_buf()
-    else
-        vim.api.nvim_win_set_buf(0, M.terminal_bufs[terminal_index])
-    end
-
-    local terminal_buf = M.terminal_bufs[vim.v.count1]
     local terminal_win = vim.api.nvim_get_current_win()
-
-    keymap.terminal({
-        [keymap.opts] = { buffer = terminal_buf },
-
-        [keys.special] = [[<C-\><Esc>]],
-        [keys.leave] = [[<C-\><C-n>]],
-    })
-
-    keymap.normal({
-        [keymap.opts] = { buffer = terminal_buf },
-
-        [keys.close] = '<C-w>q',
-        [keys.kill] = function()
-            vim.api.nvim_buf_delete(terminal_buf, { force = true })
-            M.terminal_bufs[terminal_index] = nil
-        end
-    })
-
-    vim.api.nvim_create_autocmd('BufDelete', {
-        group = augroup,
-        buffer = terminal_buf,
-        callback = function(context)
-            for idx, buf in pairs(M.terminal_bufs) do
-                if buf == context.buf then
-                    M.terminal_bufs[idx] = nil
-                end
-            end
-        end,
-    })
+    local terminal_buf = vim.api.nvim_get_current_buf()
 
     vim.api.nvim_create_autocmd('BufLeave', {
         group = augroup,
@@ -73,16 +90,39 @@ function M.open_floating()
             end
         end,
     })
-
-    vim.cmd.startinsert()
 end
 
-function M.setup(opts)
+function terminal.open_split(direction)
+    vim.api.nvim_open_win(0, true, {win = 0, split = direction})
+
+    terminal.start_terminal()
+end
+
+function terminal.open_left()
+    terminal.open_split('left')
+end
+
+function terminal.open_right()
+    terminal.open_split('right')
+end
+
+function terminal.open_below()
+    terminal.open_split('below')
+end
+
+function terminal.open_above()
+    terminal.open_split('above')
+end
+
+function terminal.setup(opts)
     augroup = vim.api.nvim_create_augroup('terminal', { clear = true })
 
     keys = {
-        special = opts.key_special,
-        leave = opts.key_leave,
+        term_escape = opts.key_term_escape,
+        term_leave = opts.key_term_leave,
+        term_close = opts.key_term_close,
+        term_kill = opts.key_term_kill,
+
         close = opts.key_close,
         kill = opts.key_kill,
     }
@@ -90,7 +130,7 @@ function M.setup(opts)
     vim.api.nvim_create_autocmd('ExitPre', {
         group = augroup,
         callback = function()
-            for idx, buf in pairs(M.terminal_bufs) do
+            for idx, buf in pairs(terminal.terminal_bufs) do
                 vim.api.nvim_buf_delete(buf, { force = true })
             end
         end,
@@ -98,4 +138,4 @@ function M.setup(opts)
 end
 -------------------------------------------------------------------------------
 
-return M
+return terminal
