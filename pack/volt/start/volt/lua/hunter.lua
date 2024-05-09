@@ -8,7 +8,6 @@ local msg = require('volt.msg')
 local vlua = require('volt.lua')
 local highlight = require('volt.highlight')
 local keymap = require('keymap')
-local keymap2 = require('keymap2')
 local vnvim = require('volt.nvim')
 -------------------------------------------------------------------------------
 
@@ -153,7 +152,7 @@ function M.hunt(trail, entries, opts)
         return
     end
 
-    keymap2.insert()
+    keymap.insert()
     :group({ key = '', opts = { buffer = input_view.buf } })
         :set({
             key = keys.next,

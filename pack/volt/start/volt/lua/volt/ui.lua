@@ -4,7 +4,6 @@ local M = {}
 local msg = require('volt.msg')
 local window = require('volt.window')
 local keymap = require('keymap')
-local keymap2 = require('keymap2')
 ------------------------------------------------------------------------------
 
 local augroup = nil
@@ -102,7 +101,7 @@ function M.input(prompt, opts)
         })
     end
 
-    keymap2.insert()
+    keymap.insert()
     :group({ key = '', opts = { buffer = buf } })
         :set({
             key = '<CR>',

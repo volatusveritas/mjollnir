@@ -2,7 +2,7 @@ local terminal = {}
 
 ----------------------------------- Imports -----------------------------------
 local window = require('volt.window')
-local keymap2 = require('keymap2')
+local keymap = require('keymap')
 -------------------------------------------------------------------------------
 
 --:: map[string]string
@@ -35,13 +35,13 @@ function terminal.start_terminal()
         print('terminal kill called')
     end
 
-    keymap2.normal()
+    keymap.normal()
     :group({ opts = { buffer = terminal_buf } })
         :set({ key = keys.close, map = '<C-w>q' })
         :set({ key = keys.kill, map = fn_terminal_kill })
     :endgroup()
 
-    keymap2.terminal()
+    keymap.terminal()
     :group({ opts = { buffer = terminal_buf } })
         :set({ key = keys.term_escape, map = [[<C-\><Esc>]] })
         :set({ key = keys.term_leave, map = [[<C-\><C-n>]] })

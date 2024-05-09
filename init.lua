@@ -1,9 +1,9 @@
 -- TODO(volatus): REWRITE FUCKING EXPLORER FFS
+-- TODO(volatus): Write a todo highlighting and searching plugin
+-- TODO(volatus): Write a homescreen plugin
 
 ----------------------------------- Options -----------------------------------
 vim.o.shiftwidth = 4
--- vim.o.colorcolumn = '80'
--- vim.o.textwidth = 79
 vim.o.wrap = false
 vim.o.number = true
 vim.o.relativenumber = true
@@ -77,9 +77,8 @@ local u = require('volt.u')
 local window = require('volt.window')
 
 local comment = require('comment')
-local explorer = require('explorer')
 local hunter = require('hunter')
-local keymap2 = require('keymap2')
+local keymap = require('keymap')
 local palette = require('palette')
 local color = palette.color
 local terminal = require('terminal')
@@ -122,20 +121,6 @@ color.light4 = '#a8adb3'
 palette.apply()
 
 ----------------------------------- Setups ------------------------------------
-explorer.setup({
-    highlight_file = { fg = color.orange },
-    highlight_folder = { fg = color.purple, attr = { 'bold' } },
-    highlight_link = { fg = color.red, attr = { 'italic' } },
-    key_enter  = '<CR>',
-    key_parent = '-',
-    key_close  = 'q',
-    key_update = 'r',
-    key_apply  = 'z',
-    key_mark   = 'm',
-    key_copy   = '<LocalLeader>c',
-    key_move   = '<LocalLeader>m',
-})
-
 terminal.setup({
     key_term_escape = '<C-s>',
     key_term_leave = '<Esc>',
@@ -146,7 +131,7 @@ terminal.setup({
 })
 
 hunter.setup({
-    highlight_combos = { fg = color.purple },
+    highlight_combos = { fg = color.yellow, attr = { 'bold' } },
     highlight_selected = { fg= color.light1 },
     highlight_option = { fg= color.light4 },
     key_next = '<C-n>',
@@ -155,15 +140,15 @@ hunter.setup({
 -------------------------------------------------------------------------------
 
 ---------------------------------- Mappings ---------------------------------
-keymap2.insert() -- [INSERT]
+keymap.insert() -- [INSERT]
 
 -- Insert Mode Movement
-:set({ key = '<C-f>', map = '<Right>', })
-:set({ key = '<C-b>', map = '<Left>', })
-:set({ key = '<A-n>', map = '<Down>', })
-:set({ key = '<A-p>', map = '<Up>', })
+:set({ key = '<C-f>', map = '<Right>' })
+:set({ key = '<C-b>', map = '<Left>' })
+:set({ key = '<A-n>', map = '<Down>' })
+:set({ key = '<A-p>', map = '<Up>' })
 
-keymap2.normal() -- [NORMAL]
+keymap.normal() -- [NORMAL]
 
 -- Neovim
 :set({
@@ -190,6 +175,7 @@ keymap2.normal() -- [NORMAL]
     :set({ key = 'j', map = terminal.open_below })
     :set({ key = 'k', map = terminal.open_above })
     :set({ key = 'l', map = terminal.open_right })
+    :set({ key = '<Leader>', map = terminal.start_terminal })
 :endgroup()
 
 -- hunter
@@ -348,7 +334,7 @@ keymap2.normal() -- [NORMAL]
     :set({ key = 't', map = 'gt' })
 :endgroup()
 
-keymap2.visual() -- [VISUAL]
+keymap.visual() -- [VISUAL]
 
 -- Clipboard (Visual)
 :group({ key = '<Leader>' })

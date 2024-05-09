@@ -49,8 +49,7 @@ local function add_import()
     end
 end
 
-keymap.normal({
-    ['<LocalLeader>'] = {
-        i = add_import,
-    },
-})
+keymap.normal()
+:group({ key = '<LocalLeader>' })
+    :set({ key = 'i', map = add_import })
+:endgroup()
