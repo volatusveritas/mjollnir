@@ -36,8 +36,6 @@ function M.apply()
     highlight.set('Changed', { fg = M.color.cyan })
     highlight.set('Removed', { fg = M.color.red })
     highlight.set('Folded', { fg = M.color.blue, bg = M.color.dark4 })
-    highlight.set('StatusLine', { fg = M.color.dark1, bg = M.color.blue_dark })
-    highlight.set('StatusLineNC', { fg = M.color.light4, bg = M.color.dark4 })
     highlight.set('ColorColumn', { bg = M.color.dark4, attr = {'NONE'} })
     highlight.set('WinSeparator', { fg = M.color.grey4, attr = {'NONE'} })
     highlight.set('Title', { fg = M.color.light1, attr = { 'bold' } })
@@ -53,6 +51,12 @@ function M.apply()
     highlight.set('PmenuSel', { fg = M.color.dark1, bg = M.color.purple_dark })
     highlight.set('PmenuSBar', { fg = M.color.light1, bg = M.color.dark4 })
     highlight.set('PmenuThumb', { fg = M.color.light1, bg = M.color.purple })
+
+    highlight.set('StatusLine', { fg = M.color.grey4, bg = M.color.dark1 })
+    highlight.set('StatusLineNC', { fg = M.color.grey4, bg = M.color.dark1 })
+    highlight.set('StatusLineMode', { fg = M.color.dark1, bg = M.color.blue, attr = { 'bold' } })
+    highlight.set('StatusLineFileName', { fg = M.color.light2, bg = M.color.dark4 })
+    highlight.set('StatusLineFileType', { fg = M.color.dark1, bg = M.color.purple, attr = { 'bold' } })
 
     vim.o.foldtext = 'v:lua.volt_foldtext()'
 end

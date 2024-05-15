@@ -18,9 +18,9 @@ vim.o.hlsearch = false
 vim.o.timeout = false
 vim.o.mouse = ''
 vim.o.showmode = false
-vim.o.cmdheight = 0
-vim.o.laststatus = 0
-vim.o.more = false
+-- vim.o.cmdheight = 0
+-- vim.o.laststatus = 0
+-- vim.o.more = false
 
 vim.o.shell = "nu"
 vim.o.shellcmdflag = "-c"
@@ -28,7 +28,6 @@ vim.o.shellslash = true
 vim.o.shellquote = ""
 vim.o.shellxquote = ""
 vim.o.shellpipe = ""
-
 vim.opt.path:append('**')
 vim.opt.fillchars:append({ fold = ' ' })
 
@@ -83,6 +82,7 @@ local palette = require('palette')
 local color = palette.color
 local terminal = require('terminal')
 local edit = require('edit')
+local statusline = require('statusline')
 -------------------------------------------------------------------------------
 
 --------------------------- Volatus Palette v1.0.1 ----------------------------
@@ -136,6 +136,11 @@ hunter.setup({
     highlight_option = { fg= color.light4 },
     key_next = '<C-n>',
     key_previous = '<C-p>',
+})
+
+statusline.setup({
+    padding = 4,
+    space_char = '─',
 })
 -------------------------------------------------------------------------------
 
@@ -381,7 +386,4 @@ keymap.visual() -- [VISUAL]
     :set({ key = 'l', map = '$' })
     :set({ key = 'h', map = '0' })
 :endgroup()
-
--- Search (Visual)
-:set({ key = 's', map = '/' })
 -------------------------------------------------------------------------------
