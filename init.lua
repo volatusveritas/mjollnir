@@ -75,7 +75,6 @@ require('leap').add_default_mappings()
 local u = require('volt.u')
 local window = require('volt.window')
 
-local comment = require('comment')
 local hunter = require('hunter')
 local keymap = require('keymap')
 local palette = require('palette')
@@ -116,9 +115,9 @@ color.light1 = '#f1f1f1'
 color.light2 = '#d9d9d9'
 color.light3 = '#c2c4c4'
 color.light4 = '#a8adb3'
--------------------------------------------------------------------------------
 
 palette.apply()
+-------------------------------------------------------------------------------
 
 ----------------------------------- Setups ------------------------------------
 terminal.setup({
@@ -138,13 +137,31 @@ hunter.setup({
     key_previous = '<C-p>',
 })
 
-statusline.setup({
-    padding = 4,
-    space_char = '─',
+statusline.setup(
+    {
+        padding = 0,
+        space_char = '─',
+    },
+    {
+        left = {
+            { color = 'Dark1BlueBold', content = statusline.block_mode, padding = 2 },
+        },
+        middle = {
+            { color = 'Light2Dark1', content = statusline.block_file_name, padding = 1 },
+        },
+        right = {
+            { color = 'Dark1PurpleBold', content = statusline.block_file_type, padding = 2 },
+        },
+    }
+)
+-------------------------------------------------------------------------------
+
+------------------------------- Custom Filetypes ------------------------------
+vim.filetype.add({
 })
 -------------------------------------------------------------------------------
 
----------------------------------- Mappings ---------------------------------
+---------------------------------- Mappings -----------------------------------
 keymap.insert() -- [INSERT]
 
 -- Insert Mode Movement
@@ -264,58 +281,6 @@ keymap.normal() -- [NORMAL]
      :set({ key = '<Leader>', map = '<Cmd>clist<CR>' })
 :endgroup()
 
--- Comment
-:group({ key = '<Leader>c' })
-    :self({
-        opts = { operator = true },
-        map = function()
-            comment.toggle(0, vim.fn.line("'["), vim.fn.line("']"))
-        end
-    })
-
-    :set({
-        key = '<Leader>',
-        map = function()
-            local line = vim.fn.line('.')
-            comment.toggle(0, line, line)
-        end
-    })
-
-    :group({ key = '[' })
-        :self({
-            opts = { operator = true },
-            map = function()
-                comment.uncomment(0, vim.fn.line("'["), vim.fn.line("']"))
-            end
-        })
-
-        :set({
-            key = '<Leader>',
-            map = function()
-                local line = vim.fn.line('.')
-                comment.uncomment(0, line, line)
-            end
-        })
-    :endgroup()
-
-    :group({ key = ']' })
-        :self({
-            opts = { operator = true },
-            map = function()
-                comment.comment(0, vim.fn.line("'["), vim.fn.line("']"))
-            end
-        })
-
-        :set({
-            key = '<Leader>',
-            map = function()
-                local line = vim.fn.line('.')
-                comment.comment(0, line, line)
-            end
-        })
-    :endgroup()
-:endgroup()
-
 -- Movement
 :group({ key = 'g' })
     :set({ key = 'k', map = 'gg' })
@@ -339,6 +304,14 @@ keymap.normal() -- [NORMAL]
     :set({ key = 't', map = 'gt' })
 :endgroup()
 
+-- Comment
+vim.api.nvim_set_keymap('n', '<Leader>c', 'gc', {})
+vim.api.nvim_set_keymap('n', '<Leader>c<Leader>', 'gcc', {})
+-- :group({ key = '<Leader>c' })
+--     :self({ map = 'gc' })
+--     :set({ key = '<Leader>',  map = 'gcc' })
+-- :endgroup()
+
 keymap.visual() -- [VISUAL]
 
 -- Clipboard (Visual)
@@ -348,37 +321,6 @@ keymap.visual() -- [VISUAL]
     :set({ key = 'P', map = '"+P' })
 :endgroup()
 
--- Comment (Visual)
-:group({ key = '<Leader>c' })
-    :set({
-        key = '<Leader>',
-        map = function()
-            comment.toggle(0, unpack({u.normalize_range(
-                vim.fn.line('v'),
-                vim.fn.line('.')
-            )}))
-        end
-    })
-    :set({
-        key = '[',
-        map = function()
-            comment.uncomment(0, unpack({u.normalize_range(
-                vim.fn.line('v'),
-                vim.fn.line('.')
-            )}))
-        end
-    })
-    :set({
-        key = ']',
-        map = function()
-            comment.comment(0, unpack({u.normalize_range(
-                vim.fn.line('v'),
-                vim.fn.line('.')
-            )}))
-        end
-    })
-:endgroup()
-
 -- Movement (Visual)
 :group({ key = 'g' })
     :set({ key = 'k', map = 'gg' })
@@ -386,4 +328,8 @@ keymap.visual() -- [VISUAL]
     :set({ key = 'l', map = '$' })
     :set({ key = 'h', map = '0' })
 :endgroup()
+
+-- Comment (Visual)
+vim.api.nvim_set_keymap('v', '<Leader>c', 'gc', {})
+-- :set({ key = '<Leader>c', map = 'gc' })
 -------------------------------------------------------------------------------

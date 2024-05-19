@@ -30,6 +30,7 @@ function M.apply()
     highlight.set('Boolean', { fg = M.color.red })
     highlight.set('String', { fg = M.color.green })
     highlight.set('Statement', { fg = M.color.yellow, attr = {'bold'} })
+    highlight.set('Todo', { fg = M.color.yellow, attr = {'bold'} })
     highlight.set('PreProc', { fg = M.color.blue, attr = {'bold'} })
     highlight.set('Special', { fg = M.color.orange })
     highlight.set('Added', { fg = M.color.green })
@@ -54,9 +55,10 @@ function M.apply()
 
     highlight.set('StatusLine', { fg = M.color.grey4, bg = M.color.dark1 })
     highlight.set('StatusLineNC', { fg = M.color.grey4, bg = M.color.dark1 })
-    highlight.set('StatusLineMode', { fg = M.color.dark1, bg = M.color.blue, attr = { 'bold' } })
-    highlight.set('StatusLineFileName', { fg = M.color.light2, bg = M.color.dark4 })
-    highlight.set('StatusLineFileType', { fg = M.color.dark1, bg = M.color.purple, attr = { 'bold' } })
+    highlight.set('StatusLineBlockDark1BlueBold', { fg = M.color.dark1, bg = M.color.blue, attr = {'bold'} })
+    highlight.set('StatusLineBlockDark1PurpleBold', { fg = M.color.dark1, bg = M.color.purple, attr = {'bold'} })
+    highlight.set('StatusLineBlockLight1Dark1', { fg = M.color.light1, bg = M.color.dark1 })
+    highlight.set('StatusLineBlockLight2Dark1', { fg = M.color.light2, bg = M.color.dark1 })
 
     vim.o.foldtext = 'v:lua.volt_foldtext()'
 end

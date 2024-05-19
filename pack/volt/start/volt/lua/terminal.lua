@@ -14,6 +14,16 @@ local augroup = nil
 --:: map[term_index(number)]bufnr(number)
 terminal.terminal_bufs = {}
 
+function terminal.buffer_index(bufnr)
+    for index, term_bufnr in pairs(terminal.terminal_bufs) do
+        if term_bufnr == bufnr then
+            return index
+        end
+    end
+
+    return -1
+end
+
 -- Starts a terminal buffer in the current window
 function terminal.start_terminal()
     local terminal_index = vim.v.count1
@@ -49,7 +59,7 @@ function terminal.start_terminal()
         :set({ key = keys.term_kill, map = fn_terminal_kill })
     :endgroup()
 
-    vim.bo.filetype = 'terminal_instance'
+    vim.bo.filetype = 'terminal'
 
     vim.api.nvim_create_autocmd('BufDelete', {
         group = augroup,
